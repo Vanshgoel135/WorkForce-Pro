@@ -7,6 +7,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import java.time.LocalDate;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 @Entity
 public class Employee {
     @Id
@@ -17,13 +19,15 @@ public class Employee {
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
-    @NotBlank(message = "Department is required")
-    private String department;
     @Positive(message = "Salary must be greater than zero")
     private Double salary;
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
     private LocalDate dateOfJoining;
 
-    public Long getId() {
+    public Long getId()
+    {
         return id;
     }
 
@@ -46,14 +50,6 @@ public class Employee {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
     public Double getSalary() {
         return salary;
     }
@@ -68,6 +64,13 @@ public class Employee {
 
     public void setDateOfJoining(LocalDate dateOfJoining) {
         this.dateOfJoining = dateOfJoining;
+    }
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 }
 
