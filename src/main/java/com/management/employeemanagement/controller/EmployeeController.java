@@ -7,6 +7,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
 @RestController
@@ -55,6 +61,20 @@ public Employee getEmployeeById(@PathVariable Long id){
     @GetMapping("/search")
     public List<Employee> searchByName(@RequestParam String name) {
         return employeeService.searchByName(name);
+    }
+    @PostMapping(
+            value = "/{id}/upload-photo",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<String> uploadPhoto(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) throws IOException {
+
+        return ResponseEntity.ok(employeeService.uploadPhoto(id, file));
+    }
+    @GetMapping("/{id}/photo")
+    public ResponseEntity<Resource> getPhoto(@PathVariable Long id) throws IOException {
+        return employeeService.getPhoto(id);
     }
 }
 

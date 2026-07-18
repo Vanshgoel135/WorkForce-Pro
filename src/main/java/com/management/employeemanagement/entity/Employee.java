@@ -24,6 +24,7 @@ public class Employee {
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+    private String profilePhoto;
     private LocalDate dateOfJoining;
 
     public Long getId()
@@ -71,6 +72,13 @@ public class Employee {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
     }
 }
 
