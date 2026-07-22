@@ -1,0 +1,66 @@
+package com.management.employeemanagement.service;
+
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+
+@Service
+public class EmailService {
+
+    private final JavaMailSender mailSender;
+
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
+
+    public void sendWelcomeEmail(String toEmail, String employeeName) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setTo(toEmail);
+        message.setSubject("Welcome to WorkForce Pro");
+
+        message.setText(
+                "Hello " + employeeName + ",\n\n" +
+                        "Welcome to WorkForce Pro.\n\n" +
+                        "Your employee account has been created successfully.\n\n" +
+                        "Regards,\nHR Team"
+        );
+
+        mailSender.send(message);
+    }
+
+    public void sendLeaveApprovedEmail(String toEmail, String employeeName) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setTo(toEmail);
+        message.setSubject("Leave Approved");
+
+        message.setText(
+                "Hello " + employeeName + ",\n\n" +
+                        "Congratulations!\n\n" +
+                        "Your leave request has been approved.\n\n" +
+                        "Regards,\nHR Team"
+        );
+
+        mailSender.send(message);
+    }
+
+    public void sendLeaveRejectedEmail(String toEmail, String employeeName) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setTo(toEmail);
+        message.setSubject("Leave Rejected");
+
+        message.setText(
+                "Hello " + employeeName + ",\n\n" +
+                        "We are sorry.\n\n" +
+                        "Your leave request has been rejected.\n\n" +
+                        "Regards,\nHR Team"
+        );
+
+        mailSender.send(message);
+    }
+}
