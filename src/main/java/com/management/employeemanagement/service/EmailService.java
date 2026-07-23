@@ -21,10 +21,21 @@ public class EmailService {
         message.setSubject("Welcome to WorkForce Pro");
 
         message.setText(
-                "Hello " + employeeName + ",\n\n" +
-                        "Welcome to WorkForce Pro.\n\n" +
-                        "Your employee account has been created successfully.\n\n" +
-                        "Regards,\nHR Team"
+                "Dear " + employeeName + ",\n\n" +
+
+                        "Welcome to WorkForce Pro!\n\n" +
+
+                        "We are delighted to have you as a part of our organization. Your employee account has been created successfully, and you are now officially registered in the WorkForce Pro Employee Management System.\n\n" +
+
+                        "We hope you have a rewarding and successful journey with us. We encourage you to explore the platform and make use of its features to manage your work efficiently.\n\n" +
+
+                        "If you have any questions or require assistance, please feel free to contact the HR Team. We are always happy to help.\n\n" +
+
+                        "Once again, welcome aboard! We wish you great success and look forward to working with you.\n\n" +
+
+                        "Best Regards,\n" +
+                        "HR Team\n" +
+                        "WorkForce Pro"
         );
 
         mailSender.send(message);
