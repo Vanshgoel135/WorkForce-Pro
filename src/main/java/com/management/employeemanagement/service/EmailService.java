@@ -33,7 +33,7 @@ public class EmailService {
 
                         "Once again, welcome aboard! We wish you great success and look forward to working with you.\n\n" +
 
-                        "Best Regards,\n" +
+                        "Best Regards....!,\n" +
                         "HR Team\n" +
                         "WorkForce Pro"
         );
