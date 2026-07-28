@@ -50,7 +50,7 @@ public class EmailService {
 
         message.setText(
                 "Hello " + employeeName + ",\n\n" +
-                        "Congratulations!\n\n" +
+                        "Congratulations...!\n\n" +
                         "Your leave request has been approved.\n\n" +
                         "Regards,\nHR Team"
         );
