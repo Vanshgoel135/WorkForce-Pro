@@ -16,16 +16,16 @@ public class JwtUtil {
             Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     // Generate JWT Token
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
 
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(SECRET_KEY)
                 .compact();
     }
-
     // Extract all claims
     private Claims extractAllClaims(String token) {
 
@@ -50,7 +50,11 @@ public class JwtUtil {
         return extractAllClaims(token)
                 .getSubject();
     }
+    public String extractRole(String token) {
 
+        return extractAllClaims(token)
+                .get("role", String.class);
+    }
     // Validate token
     public boolean validateToken(String token, String username) {
 

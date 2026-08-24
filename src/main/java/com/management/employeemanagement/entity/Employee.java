@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import java.time.LocalDate;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 @Entity
 public class Employee {
     @Id
@@ -19,11 +21,14 @@ public class Employee {
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
+    private String password;
     @Positive(message = "Salary must be greater than zero")
     private Double salary;
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+    @Enumerated(EnumType.STRING)
+    private Role role;
     private String profilePhoto;
     private LocalDate dateOfJoining;
 
@@ -79,6 +84,20 @@ public class Employee {
 
     public void setProfilePhoto(String profilePhoto) {
         this.profilePhoto = profilePhoto;
+    }
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
 

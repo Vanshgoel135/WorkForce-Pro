@@ -10,28 +10,42 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.management.employeemanagement.entity.Role;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.List;
 
 @Service
 public class EmployeeService {
-
+    private final PasswordEncoder passwordEncoder;
     private final EmployeeRepository employeeRepository;
     private final EmailService emailService;
 
     public EmployeeService(EmployeeRepository employeeRepository,
-                           EmailService emailService) {
+                           EmailService emailService,
+                           PasswordEncoder passwordEncoder) {
+
         this.employeeRepository = employeeRepository;
         this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // Save Employee + Send Welcome Email
     public Employee saveEmployee(Employee employee) {
 
+        if (employee.getRole() == null) {
+            employee.setRole(Role.EMPLOYEE);
+        }
+
+        // Encode password
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+
+        // Save employee
         Employee savedEmployee = employeeRepository.save(employee);
 
+        // Send email
         emailService.sendWelcomeEmail(
                 savedEmployee.getEmail(),
                 savedEmployee.getName()
@@ -39,7 +53,6 @@ public class EmployeeService {
 
         return savedEmployee;
     }
-
     // Get All Employees
     public List<Employee> getAllEmployees() {
         return employeeRepository.findAll();

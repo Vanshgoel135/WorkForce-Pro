@@ -1,33 +1,22 @@
 package com.management.employeemanagement.controller;
 
 import com.management.employeemanagement.dto.LoginRequest;
-import com.management.employeemanagement.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import com.management.employeemanagement.dto.LoginResponse;
+import com.management.employeemanagement.service.AuthService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final AuthService authService;
 
-    private static final String API_PASSWORD = "Vansh@123";
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
-
-        // Password check
-        if (!API_PASSWORD.equals(request.getPassword())) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "Invalid Password"
-            );
-        }
-
-        // Username kuch bhi ho sakta hai
-        return jwtUtil.generateToken(request.getUsername());
+    public LoginResponse login(@RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }
