@@ -3,6 +3,7 @@ package com.management.employeemanagement.controller;
 import com.management.employeemanagement.repository.SalaryRepository;
 import com.management.employeemanagement.service.SalaryService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.management.employeemanagement.entity.Salary;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -14,25 +15,31 @@ public class SalaryController {
         this.salaryService = salaryService;
     }
     @PostMapping("/{employeeId}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public Salary addSalary(@PathVariable Long employeeId,@Valid @RequestBody Salary salary){
         return salaryService.addSalary(employeeId ,salary);
     }
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public List<Salary> getAllSalary(){
         return salaryService.getAllSalary();
     }
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public Salary getSalaryById(@PathVariable Long id){
         return salaryService.getSalaryById(id);
     }
     @GetMapping("/employee/{employeeId}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
     public List<Salary> getSalaryByEmployeeId(@PathVariable Long employeeId) {
         return salaryService.getSalaryByEmployeeId(employeeId);
     }
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public Salary updateSalary(@PathVariable Long id,@Valid @RequestBody Salary salary){
         return salaryService.updateSalary(id,salary);
     }
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public String deleteSalary(@PathVariable Long id) {
 

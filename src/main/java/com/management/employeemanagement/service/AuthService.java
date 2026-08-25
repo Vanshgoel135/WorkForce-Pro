@@ -1,11 +1,14 @@
 package com.management.employeemanagement.service;
-import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.management.employeemanagement.dto.LoginRequest;
 import com.management.employeemanagement.dto.LoginResponse;
 import com.management.employeemanagement.entity.Employee;
 import com.management.employeemanagement.repository.EmployeeRepository;
 import com.management.employeemanagement.security.JwtUtil;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 @Service
 public class AuthService {
 
@@ -21,10 +24,13 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
+
     public LoginResponse login(LoginRequest request) {
 
-        Employee employee = employeeRepository.findByName(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid Username"));
+        Employee employee = employeeRepository
+                .findByEmail(request.getUsername())
+                .orElseThrow(() ->
+                        new RuntimeException("Invalid Email"));
 
         if (!passwordEncoder.matches(request.getPassword(), employee.getPassword())) {
             throw new RuntimeException("Invalid Password");

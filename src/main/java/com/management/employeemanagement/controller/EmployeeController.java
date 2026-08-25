@@ -1,6 +1,7 @@
 package com.management.employeemanagement.controller;
 import java.util.List;
 import com.management.employeemanagement.entity.Employee;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.management.employeemanagement.service.EmployeeService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ public class EmployeeController {
     public Employee addemployee( @Valid @RequestBody Employee employee){
         return employeeService.saveEmployee(employee);
     }
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @GetMapping
     public List<Employee> getAllEmployees() {
         return employeeService.getAllEmployees();
@@ -36,15 +38,18 @@ public class EmployeeController {
 public Employee getEmployeeById(@PathVariable Long id){
         return employeeService.getEmployeeById(id);
     }
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @PutMapping("/{id}")
     public Employee updateEmployees( @Valid @PathVariable Long id,@RequestBody Employee employee){
         return employeeService.updateEmployee(id, employee);
     }
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public String deleteEmployee(@PathVariable Long id)
     {
         return employeeService.deleteEmployee(id);
     }
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @GetMapping("/page")
     public Page<Employee> getEmployees(
             @RequestParam(defaultValue = "0") int page,
@@ -52,16 +57,19 @@ public Employee getEmployeeById(@PathVariable Long id){
 
         return employeeService.getEmployees(page, size);
     }
+
     @GetMapping("/sort")
     public List<Employee> sortEmployees(
             @RequestParam String field) {
 
         return employeeService.sortEmployees(field);
     }
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @GetMapping("/search")
     public List<Employee> searchByName(@RequestParam String name) {
         return employeeService.searchByName(name);
     }
+    @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
     @PostMapping(
             value = "/{id}/upload-photo",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
@@ -72,6 +80,7 @@ public Employee getEmployeeById(@PathVariable Long id){
 
         return ResponseEntity.ok(employeeService.uploadPhoto(id, file));
     }
+    @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
     @GetMapping("/{id}/photo")
     public ResponseEntity<Resource> getPhoto(@PathVariable Long id) throws IOException {
         return employeeService.getPhoto(id);
