@@ -1,0 +1,21 @@
+﻿ id |       name       |             email             | role  |                           password                           
+----+------------------+-------------------------------+-------+--------------------------------------------------------------
+  2 | siddhart sharma  | siddhartshar1722ns@gmail.com  |       | 
+  3 | Vansh            | vansh@gmail.com               |       | 
+  5 | Vansh Goel       | yourgmail@gmail.com           |       | 
+ 10 | Priyanshu Tayal  | priyanshutayal35@gmail.com    |       | 
+ 11 | Vishal Sharma    | pr.vishalsharma@gmail.com     |       | 
+ 12 | Vansh Goel       | goelvansh71@gmail.com         |       | 
+ 13 | Yash Tyagi       | yasgtyagi232004@gmail.com     |       | 
+ 14 | Yash Tyagi       | yashtyagi232004@gmail.com     |       | 
+ 15 | Siddhart Sharma  | siddhartshar1722ns@gmail.com  |       | 
+ 16 | Siddhart Sharma  | siddhartshar1722ns@gmail.com  |       | 
+ 17 | Siddhart Sharma  | siddharthshar1722ns@gmail.com |       | 
+ 18 | Siddhart Sharma  | siddharthshar1722ns@gmail.com |       | 
+ 19 | Siddharth Sharma | siddharthshar1722ns@gmail.com |       | 
+ 20 | Siddharth Sharma | siddharthshar1722ns@gmail.com |       | 
+ 21 | Siddharth Sharma | siddharthshar1722ns@gmail.com |       | 
+ 22 | Siddharth Sharma | siddharthshar1722ns@gmail.com |       | 
+ 24 | Vansh            | vansh@gmail.com               | ADMIN | $2a$10$XPY5TNE9W9yBTwlf9XK8LOOOf357C.8ZwtcXvebf6URVFYC6.L54O
+(17 rows)
+

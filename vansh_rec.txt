@@ -1,0 +1,6 @@
+﻿ id |      email      | role  |                           password                           
+----+-----------------+-------+--------------------------------------------------------------
+  3 | vansh@gmail.com |       | 
+ 24 | vansh@gmail.com | ADMIN | $2a$10$XPY5TNE9W9yBTwlf9XK8LOOOf357C.8ZwtcXvebf6URVFYC6.L54O
+(2 rows)
+

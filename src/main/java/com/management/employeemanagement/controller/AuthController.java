@@ -17,6 +17,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
+        System.out.println("===== LOGIN API CALLED =====");
         return authService.login(request);
     }
 }

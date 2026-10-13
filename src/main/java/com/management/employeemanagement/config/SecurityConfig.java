@@ -20,18 +20,22 @@ public class SecurityConfig {
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+
                 .authorizeHttpRequests(auth -> auth
 
                         // Public APIs
@@ -42,14 +46,22 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // Role Based APIs
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/hr/**").hasAnyRole("ADMIN", "HR")
-                        .requestMatchers("/employee/**").hasAnyRole("ADMIN", "HR", "EMPLOYEE")
+                        // Admin APIs
+                        .requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
+
+                        // HR APIs
+                        .requestMatchers("/hr/**")
+                        .hasAnyRole("ADMIN", "HR")
+
+                        // Employee APIs
+                        .requestMatchers("/employee/**", "/employees/**")
+                        .hasAnyRole("ADMIN", "HR", "EMPLOYEE")
 
                         // All other APIs
                         .anyRequest().authenticated()
                 )
+
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -57,4 +69,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-    }
+}
