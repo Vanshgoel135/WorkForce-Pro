@@ -22,6 +22,9 @@ public class Attendance {
     private LocalDate date;
     private LocalTime checkIn;
     private LocalTime checkOut;
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
     @NotBlank(message = "Name is required")
     private String status;
    public LocalDate getDate(){
@@ -62,5 +65,13 @@ public class Attendance {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 }

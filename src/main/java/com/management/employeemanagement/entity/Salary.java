@@ -26,8 +26,12 @@ public class Salary {
     private Double deduction;
 
     private Double netSalary;
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 
     private LocalDate payDate;
+
     public Long getId(){
         return id;
     }
@@ -69,5 +73,13 @@ public class Salary {
     }
     public void setPayDate(LocalDate payDate){
         this.payDate=payDate;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 }

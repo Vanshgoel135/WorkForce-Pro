@@ -9,5 +9,23 @@ import java.util.List;
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     Optional<Attendance> findByEmployeeIdAndDate(Long employeeId, LocalDate date);
+
     List<Attendance> findByEmployeeId(Long employeeId);
+
+    // Multi-tenant methods
+    List<Attendance> findByOrganizationId(Long organizationId);
+
+    Optional<Attendance> findByIdAndOrganizationId(
+            Long id,
+            Long organizationId);
+
+    List<Attendance> findByEmployeeIdAndOrganizationId(
+            Long employeeId,
+            Long organizationId);
+
+    Optional<Attendance> findByEmployeeIdAndOrganizationIdAndDate(
+            Long employeeId,
+            Long organizationId,
+            LocalDate date);
+    long countByEmployeeOrganizationId(Long organizationId);
 }

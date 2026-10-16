@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 @RestController
-@RequestMapping("/department")
+@RequestMapping("/organizations/{organizationId}/departments")
 public class DepartmentController {
 
   private final DepartmentService departmentService;
@@ -19,30 +19,53 @@ public class DepartmentController {
 
   @PostMapping
   @PreAuthorize("hasAnyRole('ADMIN','HR')")
-  public Department addDepartment(@Valid @RequestBody Department department) {
-    return departmentService.saveDepartment(department);
+  public Department addDepartment(
+          @PathVariable Long organizationId,
+          @Valid @RequestBody Department department) {
+
+    return departmentService.saveDepartment(organizationId, department);
   }
 
   @GetMapping
-
   @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
-  public List<Department> getAllDepartment() {
-    return departmentService.getAllDepartment();
+  public List<Department> getAllDepartment(
+          @PathVariable Long organizationId) {
+
+    return departmentService.getAllDepartment(organizationId);
   }
 
-  @GetMapping("/{id}")
+  @GetMapping("/{departmentId}")
   @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
-  public Department getDepartmentById(@PathVariable Long id) {
-    return departmentService.getDepartmentById(id);
+  public Department getDepartmentById(
+          @PathVariable Long organizationId,
+          @PathVariable Long departmentId) {
+
+    return departmentService.getDepartmentById(organizationId, departmentId);
   }
-  @PutMapping("/{id}")
+
+  @PutMapping("/{departmentId}")
   @PreAuthorize("hasAnyRole('ADMIN','HR')")
-  public Department updateDepartment(@Valid @PathVariable Long id,@RequestBody Department department){
-    return departmentService.updateDepartment(id,department);
+  public Department updateDepartment(
+          @PathVariable Long organizationId,
+          @PathVariable Long departmentId,
+          @Valid @RequestBody Department department) {
+
+    return departmentService.updateDepartment(
+            organizationId,
+            departmentId,
+            department
+    );
   }
-  @DeleteMapping("/{id}")
+
+  @DeleteMapping("/{departmentId}")
   @PreAuthorize("hasRole('ADMIN')")
-  public Department deleteDepartment(@PathVariable Long id){
-    return departmentService.deleteDepartment(id);
+  public Department deleteDepartment(
+          @PathVariable Long organizationId,
+          @PathVariable Long departmentId) {
+
+    return departmentService.deleteDepartment(
+            organizationId,
+            departmentId
+    );
   }
 }

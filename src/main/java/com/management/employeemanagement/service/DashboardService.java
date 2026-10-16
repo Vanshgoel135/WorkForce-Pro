@@ -1,9 +1,10 @@
 package com.management.employeemanagement.service;
 
-import com.management.employeemanagement.repository.*;
-import org.springframework.stereotype.Service;
 import com.management.employeemanagement.dto.DashboardDTO;
 import com.management.employeemanagement.entity.Salary;
+import com.management.employeemanagement.repository.*;
+import org.springframework.stereotype.Service;
+
 @Service
 public class DashboardService {
 
@@ -13,11 +14,12 @@ public class DashboardService {
     private final SalaryRepository salaryRepository;
     private final LeaveRequestRepository leaveRequestRepository;
 
-    public DashboardService(EmployeeRepository employeeRepository,
-                            DepartmentRepository departmentRepository,
-                            AttendanceRepository attendanceRepository,
-                            SalaryRepository salaryRepository,
-                            LeaveRequestRepository leaveRequestRepository) {
+    public DashboardService(
+            EmployeeRepository employeeRepository,
+            DepartmentRepository departmentRepository,
+            AttendanceRepository attendanceRepository,
+            SalaryRepository salaryRepository,
+            LeaveRequestRepository leaveRequestRepository) {
 
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
@@ -26,16 +28,28 @@ public class DashboardService {
         this.leaveRequestRepository = leaveRequestRepository;
     }
 
-    public DashboardDTO getDashboard() {
+    public DashboardDTO getDashboard(Long organizationId) {
 
         DashboardDTO dashboard = new DashboardDTO();
 
-        dashboard.setTotalEmployees(employeeRepository.count());
-        dashboard.setTotalDepartments(departmentRepository.count());
-        dashboard.setPresentToday(attendanceRepository.count());
-        dashboard.setOnLeave(leaveRequestRepository.count());
+        dashboard.setTotalEmployees(
+                employeeRepository.countByOrganizationId(organizationId)
+        );
 
-        double totalSalary = salaryRepository.findAll()
+        dashboard.setTotalDepartments(
+                departmentRepository.countByOrganizationId(organizationId)
+        );
+
+        dashboard.setPresentToday(
+                attendanceRepository.countByEmployeeOrganizationId(organizationId)
+        );
+
+        dashboard.setOnLeave(
+                leaveRequestRepository.countByEmployeeOrganizationId(organizationId)
+        );
+
+        double totalSalary = salaryRepository
+                .findByEmployeeOrganizationId(organizationId)
                 .stream()
                 .mapToDouble(Salary::getNetSalary)
                 .sum();

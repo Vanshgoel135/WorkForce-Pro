@@ -21,6 +21,9 @@ public class LeaveRequest {
     private LocalDate toDate;
     private String reason;
     private String status;
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 public Long getId(){
     return id;
 }
@@ -57,4 +60,12 @@ public String getReason(){
 public void setReason(String reason){
     this.reason=reason;
 }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
 }

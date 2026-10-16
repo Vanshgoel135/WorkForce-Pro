@@ -11,35 +11,62 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 @RestController
-@RequestMapping("/attendance")
+@RequestMapping("/organizations/{organizationId}/attendance")
 public class AttendanceController {
+
     private final AttendanceService attendanceService;
-    public AttendanceController(AttendanceService attendanceService){
-        this.attendanceService=attendanceService;
+
+    public AttendanceController(AttendanceService attendanceService) {
+        this.attendanceService = attendanceService;
     }
+
     @PostMapping("/checkin/{employeeId}")
     @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
-    public Attendance checkIn(@PathVariable Long employeeId) {
-        return attendanceService.checkIn(employeeId);
+    public Attendance checkIn(
+            @PathVariable Long organizationId,
+            @PathVariable Long employeeId) {
+
+        return attendanceService.checkIn(organizationId, employeeId);
     }
-    @PostMapping("/checkOut/{employeeId}")
+
+    @PostMapping("/checkout/{employeeId}")
     @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
-    public Attendance checkOut(@PathVariable Long employeeId){
-        return attendanceService.checkOut(employeeId);
+    public Attendance checkOut(
+            @PathVariable Long organizationId,
+            @PathVariable Long employeeId) {
+
+        return attendanceService.checkOut(organizationId, employeeId);
     }
+
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    public List<Attendance> getAllAttendance(){
-        return attendanceService.getAllAttendance();
+    public List<Attendance> getAllAttendance(
+            @PathVariable Long organizationId) {
+
+        return attendanceService.getAllAttendance(organizationId);
     }
-    @GetMapping("/{id}")
+
+    @GetMapping("/{attendanceId}")
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    public Attendance getAttendanceById(@PathVariable Long id){
-        return attendanceService.getAttendanceById(id);
+    public Attendance getAttendanceById(
+            @PathVariable Long organizationId,
+            @PathVariable Long attendanceId) {
+
+        return attendanceService.getAttendanceById(
+                organizationId,
+                attendanceId
+        );
     }
+
     @GetMapping("/employee/{employeeId}")
     @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
-    public List<Attendance >getAttendanceByEmployeeId(@PathVariable Long employeeId){
-        return attendanceService.getAttendanceByEmployeeId(employeeId);
+    public List<Attendance> getAttendanceByEmployeeId(
+            @PathVariable Long organizationId,
+            @PathVariable Long employeeId) {
+
+        return attendanceService.getAttendanceByEmployeeId(
+                organizationId,
+                employeeId
+        );
     }
 }

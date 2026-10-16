@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import com.management.employeemanagement.entity.Organization;
+import com.management.employeemanagement.repository.OrganizationRepository;
 
 @Service
 public class AttendanceService {
@@ -15,16 +17,20 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final EmployeeRepository employeeRepository;
 
-    public AttendanceService(AttendanceRepository attendanceRepository,
-                             EmployeeRepository employeeRepository) {
+    private final OrganizationRepository organizationRepository;
+    public AttendanceService(
+            AttendanceRepository attendanceRepository,
+            EmployeeRepository employeeRepository,
+            OrganizationRepository organizationRepository) {
 
         this.attendanceRepository = attendanceRepository;
         this.employeeRepository = employeeRepository;
+        this.organizationRepository = organizationRepository;
     }
+    public Attendance checkIn(Long organizationId, Long employeeId) {
 
-    public Attendance checkIn(Long employeeId) {
-
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository
+                .findByIdAndOrganizationId(employeeId, organizationId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Employee not found"));
 
@@ -37,10 +43,13 @@ public class AttendanceService {
 
         return attendanceRepository.save(attendance);
     }
-    public Attendance checkOut(Long employeeId) {
+    public Attendance checkOut(Long organizationId, Long employeeId) {
 
         Attendance attendance = attendanceRepository
-                .findByEmployeeIdAndDate(employeeId, LocalDate.now())
+                .findByEmployeeIdAndOrganizationIdAndDate(
+                        employeeId,
+                        organizationId,
+                        LocalDate.now())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Check-In not found"));
 
@@ -48,15 +57,29 @@ public class AttendanceService {
 
         return attendanceRepository.save(attendance);
     }
-    public List<Attendance> getAllAttendance(){
-        return attendanceRepository.findAll();
+    public List<Attendance> getAllAttendance(Long organizationId) {
+
+        return attendanceRepository.findByOrganizationId(organizationId);
     }
-    public Attendance getAttendanceById(Long id){
-        return attendanceRepository.findById(id).orElseThrow( ()->
-                new ResourceNotFoundException("Attendance not found with id " + id));
+    public Attendance getAttendanceById(Long organizationId, Long attendanceId) {
+
+        return attendanceRepository
+                .findByIdAndOrganizationId(attendanceId, organizationId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Attendance not found"));
     }
-    public List<Attendance> getAttendanceByEmployeeId(Long employeeId){
-        attendanceRepository.findById(employeeId).orElseThrow(()-> new ResourceNotFoundException("Employee noy found"));
-        return attendanceRepository.findByEmployeeId(employeeId);
+    public List<Attendance> getAttendanceByEmployeeId(
+            Long organizationId,
+            Long employeeId) {
+
+        employeeRepository
+                .findByIdAndOrganizationId(employeeId, organizationId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found"));
+
+        return attendanceRepository
+                .findByEmployeeIdAndOrganizationId(
+                        employeeId,
+                        organizationId);
     }
 }

@@ -1,10 +1,10 @@
 package com.management.employeemanagement.controller;
 
-import com.management.employeemanagement.service.DashboardService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
 import com.management.employeemanagement.dto.DashboardDTO;
+import com.management.employeemanagement.service.DashboardService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/dashboard")
 public class DashboardController {
@@ -15,8 +15,11 @@ public class DashboardController {
         this.dashboardService = dashboardService;
     }
 
-    @GetMapping
-    public DashboardDTO getDashboard() {
-        return dashboardService.getDashboard();
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
+    @GetMapping("/organization/{organizationId}")
+    public DashboardDTO getDashboard(
+            @PathVariable Long organizationId) {
+
+        return dashboardService.getDashboard(organizationId);
     }
 }

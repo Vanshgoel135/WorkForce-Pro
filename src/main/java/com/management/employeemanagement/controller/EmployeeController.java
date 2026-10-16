@@ -1,6 +1,7 @@
 package com.management.employeemanagement.controller;
 import java.util.List;
 import com.management.employeemanagement.entity.Employee;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.management.employeemanagement.service.EmployeeService;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,49 +26,75 @@ public class EmployeeController {
 
         this.employeeService = employeeService;
     }
-    @PostMapping
-    public Employee addemployee( @Valid @RequestBody Employee employee){
-        return employeeService.saveEmployee(employee);
+    @PostMapping("/organization/{organizationId}")
+    public Employee saveEmployee(
+            @PathVariable Long organizationId,
+            @RequestBody Employee employee) {
+
+        return employeeService.saveEmployee(organizationId, employee);
     }
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    @GetMapping
-    public List<Employee> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    @GetMapping("/organization/{organizationId}")
+    public List<Employee> getAllEmployees(
+            @PathVariable Long organizationId) {
+
+        return employeeService.getAllEmployees(organizationId);
     }
-    @GetMapping("/{id}")
-public Employee getEmployeeById(@PathVariable Long id){
-        return employeeService.getEmployeeById(id);
+    @GetMapping("/organization/{organizationId}/{employeeId}")
+    public Employee getEmployeeById(
+            @PathVariable Long organizationId,
+            @PathVariable Long employeeId) {
+
+        return employeeService.getEmployeeById(organizationId, employeeId);
     }
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    @PutMapping("/{id}")
-    public Employee updateEmployees( @Valid @PathVariable Long id,@RequestBody Employee employee){
-        return employeeService.updateEmployee(id, employee);
+    @PutMapping("/organization/{organizationId}/{employeeId}")
+    public Employee updateEmployee(
+            @PathVariable Long organizationId,
+            @PathVariable Long employeeId,
+            @RequestBody Employee employee) {
+
+        return employeeService.updateEmployee(
+                organizationId,
+                employeeId,
+                employee
+        );
     }
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public String deleteEmployee(@PathVariable Long id)
-    {
-        return employeeService.deleteEmployee(id);
+    @DeleteMapping("/organization/{organizationId}/{employeeId}")
+    public String deleteEmployee(
+            @PathVariable Long organizationId,
+            @PathVariable Long employeeId) {
+
+        return employeeService.deleteEmployee(
+                organizationId,
+                employeeId
+        );
     }
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    @GetMapping("/page")
+    @GetMapping("/organization/{organizationId}/page")
     public Page<Employee> getEmployees(
+            @PathVariable Long organizationId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
 
-        return employeeService.getEmployees(page, size);
-    }
-
-    @GetMapping("/sort")
-    public List<Employee> sortEmployees(
-            @RequestParam String field) {
-
-        return employeeService.sortEmployees(field);
+        return employeeService.getEmployees(organizationId, page, size);
     }
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    @GetMapping("/search")
-    public List<Employee> searchByName(@RequestParam String name) {
-        return employeeService.searchByName(name);
+    @GetMapping("/organization/{organizationId}/sort")
+    public List<Employee> sortEmployees(
+            @PathVariable Long organizationId,
+            @RequestParam String field) {
+
+        return employeeService.sortEmployees(organizationId, field);
+    }
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
+    @GetMapping("/organization/{organizationId}/search")
+    public List<Employee> searchByName(
+            @PathVariable Long organizationId,
+            @RequestParam String name) {
+
+        return employeeService.searchByName(organizationId, name);
     }
     @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
     @PostMapping(

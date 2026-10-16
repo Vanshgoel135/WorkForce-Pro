@@ -1,16 +1,19 @@
 package com.management.employeemanagement.entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+
 import java.time.LocalDate;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 @Entity
 public class Employee {
     @Id
@@ -31,7 +34,9 @@ public class Employee {
     private Role role;
     private String profilePhoto;
     private LocalDate dateOfJoining;
-
+    @ManyToOne
+    @JoinColumn(name="organization_id")
+    private Organization organization;
     public Long getId()
     {
         return id;
@@ -98,6 +103,14 @@ public class Employee {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 }
 

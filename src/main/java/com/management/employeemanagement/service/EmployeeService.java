@@ -12,40 +12,51 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.management.employeemanagement.entity.Role;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
+import com.management.employeemanagement.entity.Organization;
 import java.util.List;
 import java.io.IOException;
 import java.nio.file.*;
-
+import com.management.employeemanagement.repository.OrganizationRepository;
 @Service
 public class EmployeeService {
     private final PasswordEncoder passwordEncoder;
     private final EmployeeRepository employeeRepository;
     private final EmailService emailService;
-
+    private final OrganizationRepository organizationRepository;
     public EmployeeService(EmployeeRepository employeeRepository,
                            EmailService emailService,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           OrganizationRepository organizationRepository ) {
 
         this.employeeRepository = employeeRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.organizationRepository = organizationRepository;
     }
 
     // Save Employee + Send Welcome Email
-    public Employee saveEmployee(Employee employee) {
+    public Employee saveEmployee(Long organizationId, Employee employee) {
 
+        // Find Organization
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Organization not found"));
+
+        // Attach Organization
+        employee.setOrganization(organization);
+
+        // Default Role
         if (employee.getRole() == null) {
             employee.setRole(Role.EMPLOYEE);
         }
 
-        // Encode password
+        // Encode Password
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 
-        // Save employee
+        // Save Employee
         Employee savedEmployee = employeeRepository.save(employee);
 
-        // Send email
+        // Send Welcome Email
         emailService.sendWelcomeEmail(
                 savedEmployee.getEmail(),
                 savedEmployee.getName()
@@ -54,24 +65,25 @@ public class EmployeeService {
         return savedEmployee;
     }
     // Get All Employees
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public List<Employee> getAllEmployees(Long organizationId) {
+
+        return employeeRepository.findByOrganizationId(organizationId);
     }
+    public Employee getEmployeeById(Long organizationId, Long employeeId) {
 
-    // Get Employee By Id
-    public Employee getEmployeeById(Long id) {
-
-        return employeeRepository.findById(id)
+        return employeeRepository
+                .findByIdAndOrganizationId(employeeId, organizationId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee not found with id " + id));
+                        new ResourceNotFoundException("Employee not found"));
     }
 
     // Update Employee
-    public Employee updateEmployee(Long id, Employee employee) {
+    public Employee updateEmployee(Long organizationId, Long employeeId, Employee employee) {
 
-        Employee existingEmployee = employeeRepository.findById(id)
+        Employee existingEmployee = employeeRepository
+                .findByIdAndOrganizationId(employeeId, organizationId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee not found with id " + id));
+                        new ResourceNotFoundException("Employee not found"));
 
         existingEmployee.setName(employee.getName());
         existingEmployee.setEmail(employee.getEmail());
@@ -83,11 +95,12 @@ public class EmployeeService {
     }
 
     // Delete Employee
-    public String deleteEmployee(Long id) {
+    public String deleteEmployee(Long organizationId, Long employeeId) {
 
-        Employee employee = employeeRepository.findById(id)
+        Employee employee = employeeRepository
+                .findByIdAndOrganizationId(employeeId, organizationId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee not found with id " + id));
+                        new ResourceNotFoundException("Employee not found"));
 
         employeeRepository.delete(employee);
 
@@ -95,23 +108,29 @@ public class EmployeeService {
     }
 
     // Pagination
-    public Page<Employee> getEmployees(int page, int size) {
+    public Page<Employee> getEmployees(Long organizationId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        return employeeRepository.findAll(pageable);
+        return employeeRepository.findByOrganizationId(organizationId, pageable);
     }
 
     // Sorting
-    public List<Employee> sortEmployees(String field) {
+    public List<Employee> sortEmployees(Long organizationId, String field) {
 
-        return employeeRepository.findAll(Sort.by(field));
+        return employeeRepository.findByOrganizationId(
+                organizationId,
+                Sort.by(field)
+        );
     }
 
     // Search
-    public List<Employee> searchByName(String name) {
+    public List<Employee> searchByName(Long organizationId, String name) {
 
-        return employeeRepository.findByName(name);
+        return employeeRepository.findByNameAndOrganizationId(
+                name,
+                organizationId
+        );
     }
 
     // Upload Photo
