@@ -21,15 +21,23 @@ public class JwtUtil {
     }
 
     // Generate JWT Token
-    public String generateToken(String username, String role) {
+    public String generateToken(String username,
+                                String role,
+                                Long organizationId) {
 
         return Jwts.builder()
                 .setSubject(username)
                 .claim("role", role)
+                .claim("organizationId", organizationId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(getSecretKey())
                 .compact();
+    }
+    public Long extractOrganizationId(String token) {
+
+        return extractAllClaims(token)
+                .get("organizationId", Long.class);
     }
 
     // Extract all claims

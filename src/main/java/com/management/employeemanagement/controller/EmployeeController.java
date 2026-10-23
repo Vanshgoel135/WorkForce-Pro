@@ -2,6 +2,7 @@ package com.management.employeemanagement.controller;
 import java.util.List;
 import com.management.employeemanagement.entity.Employee;
 import org.springframework.data.domain.Sort;
+import com.management.employeemanagement.security.SecurityUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.management.employeemanagement.service.EmployeeService;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,33 +27,35 @@ public class EmployeeController {
 
         this.employeeService = employeeService;
     }
-    @PostMapping("/organization/{organizationId}")
-    public Employee saveEmployee(
-            @PathVariable Long organizationId,
-            @RequestBody Employee employee) {
+    @PostMapping
+    public Employee saveEmployee(@RequestBody Employee employee) {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         return employeeService.saveEmployee(organizationId, employee);
     }
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    @GetMapping("/organization/{organizationId}")
-    public List<Employee> getAllEmployees(
-            @PathVariable Long organizationId) {
+    @GetMapping
+    public List<Employee> getAllEmployees() {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         return employeeService.getAllEmployees(organizationId);
     }
-    @GetMapping("/organization/{organizationId}/{employeeId}")
-    public Employee getEmployeeById(
-            @PathVariable Long organizationId,
-            @PathVariable Long employeeId) {
+    @GetMapping("/{employeeId}")
+    public Employee getEmployeeById(@PathVariable Long employeeId) {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         return employeeService.getEmployeeById(organizationId, employeeId);
     }
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    @PutMapping("/organization/{organizationId}/{employeeId}")
+    @PutMapping("/{employeeId}")
     public Employee updateEmployee(
-            @PathVariable Long organizationId,
             @PathVariable Long employeeId,
             @RequestBody Employee employee) {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         return employeeService.updateEmployee(
                 organizationId,
@@ -61,10 +64,10 @@ public class EmployeeController {
         );
     }
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/organization/{organizationId}/{employeeId}")
-    public String deleteEmployee(
-            @PathVariable Long organizationId,
-            @PathVariable Long employeeId) {
+    @DeleteMapping("/{employeeId}")
+    public String deleteEmployee(@PathVariable Long employeeId) {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         return employeeService.deleteEmployee(
                 organizationId,
@@ -72,11 +75,12 @@ public class EmployeeController {
         );
     }
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    @GetMapping("/organization/{organizationId}/page")
+    @GetMapping("/page")
     public Page<Employee> getEmployees(
-            @PathVariable Long organizationId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         return employeeService.getEmployees(organizationId, page, size);
     }

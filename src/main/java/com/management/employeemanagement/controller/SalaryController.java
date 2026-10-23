@@ -1,6 +1,7 @@
 package com.management.employeemanagement.controller;
 
 import com.management.employeemanagement.entity.Salary;
+import com.management.employeemanagement.security.SecurityUtils;
 import com.management.employeemanagement.service.SalaryService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,38 +19,49 @@ public class SalaryController {
         this.salaryService = salaryService;
     }
 
-    @PostMapping("/organization/{organizationId}/employee/{employeeId}")
+    @PostMapping("/employee/{employeeId}")
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public Salary addSalary(
-            @PathVariable Long organizationId,
             @PathVariable Long employeeId,
             @Valid @RequestBody Salary salary) {
 
-        return salaryService.addSalary(organizationId, employeeId, salary);
+        Long organizationId = SecurityUtils.getOrganizationId();
+
+        return salaryService.addSalary(
+                organizationId,
+                employeeId,
+                salary
+        );
     }
 
-    @GetMapping("/organization/{organizationId}")
+    @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
-    public List<Salary> getAllSalary(
-            @PathVariable Long organizationId) {
+    public List<Salary> getAllSalary() {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         return salaryService.getAllSalary(organizationId);
     }
 
-    @GetMapping("/organization/{organizationId}/{salaryId}")
+    @GetMapping("/{salaryId}")
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public Salary getSalaryById(
-            @PathVariable Long organizationId,
             @PathVariable Long salaryId) {
 
-        return salaryService.getSalaryById(organizationId, salaryId);
+        Long organizationId = SecurityUtils.getOrganizationId();
+
+        return salaryService.getSalaryById(
+                organizationId,
+                salaryId
+        );
     }
 
-    @GetMapping("/organization/{organizationId}/employee/{employeeId}")
+    @GetMapping("/employee/{employeeId}")
     @PreAuthorize("hasAnyRole('ADMIN','HR','EMPLOYEE')")
     public List<Salary> getSalaryByEmployeeId(
-            @PathVariable Long organizationId,
             @PathVariable Long employeeId) {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         return salaryService.getSalaryByEmployeeId(
                 organizationId,
@@ -57,12 +69,13 @@ public class SalaryController {
         );
     }
 
-    @PutMapping("/organization/{organizationId}/{salaryId}")
+    @PutMapping("/{salaryId}")
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public Salary updateSalary(
-            @PathVariable Long organizationId,
             @PathVariable Long salaryId,
             @Valid @RequestBody Salary salary) {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         return salaryService.updateSalary(
                 organizationId,
@@ -71,11 +84,12 @@ public class SalaryController {
         );
     }
 
-    @DeleteMapping("/organization/{organizationId}/{salaryId}")
+    @DeleteMapping("/{salaryId}")
     @PreAuthorize("hasRole('ADMIN')")
     public String deleteSalary(
-            @PathVariable Long organizationId,
             @PathVariable Long salaryId) {
+
+        Long organizationId = SecurityUtils.getOrganizationId();
 
         salaryService.deleteSalary(
                 organizationId,
