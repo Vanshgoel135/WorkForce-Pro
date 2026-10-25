@@ -50,7 +50,6 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/ai/**",
                                 "/actuator/**"
-
                         ).permitAll()
 
                         // Admin APIs
