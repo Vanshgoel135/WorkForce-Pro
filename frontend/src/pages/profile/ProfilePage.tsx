@@ -38,13 +38,12 @@ export const ProfilePage: React.FC = () => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Find logged in employee by email from employees list
-  const { data: employees = [], isLoading } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => employeeService.getAll(),
+  // Find logged in employee by resolving current user
+  const { data: currentEmployee, isLoading } = useQuery({
+    queryKey: ['current-employee-profile', user?.email],
+    queryFn: () => (user ? employeeService.resolveCurrentEmployee(user) : null),
+    enabled: Boolean(user?.email),
   });
-
-  const currentEmployee = employees.find((e) => e.email === user?.email);
 
   // Upload photo mutation
   const uploadPhotoMutation = useMutation({
@@ -53,6 +52,7 @@ export const ProfilePage: React.FC = () => {
       return employeeService.uploadPhoto(currentEmployee.id, file);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['current-employee-profile'] });
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       toast.success('Profile photo updated successfully!');
       setUploadDialogOpen(false);
@@ -84,7 +84,7 @@ export const ProfilePage: React.FC = () => {
         {/* Main Profile Info */}
         <Grid size={{ xs: 12, md: 8 }}>
           <Card sx={{ borderRadius: 4, overflow: 'hidden', mb: 3 }}>
-            <Box sx={{ height: 120, background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)' }} />
+            <Box sx={{ height: 120, background: 'linear-gradient(135deg, #B71C1C 0%, #C62828 50%, #E53935 100%)' }} />
             <CardContent sx={{ p: { xs: 2.5, sm: 4 }, mt: -7 }}>
               <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'flex-end' }, justifyContent: 'space-between', gap: 2, mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2.5 }}>

@@ -10,7 +10,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Typography,
   Button,
   TextField,
@@ -27,7 +26,6 @@ import {
   CircularProgress,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
 import { toast } from 'react-toastify';
@@ -54,10 +52,13 @@ export const UsersPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Employee | null>(null);
   const [newRole, setNewRole] = useState<Role>('EMPLOYEE');
 
+  const canManageUsers = user?.role === 'ADMIN' || user?.role === 'HR';
+
   // Queries
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['employees'],
     queryFn: () => employeeService.getAll(),
+    enabled: canManageUsers,
   });
 
   // Mutation to update employee role
@@ -116,6 +117,21 @@ export const UsersPage: React.FC = () => {
   }, [filteredUsers, page, rowsPerPage]);
 
   const isAdmin = user?.role === 'ADMIN';
+
+  if (!canManageUsers) {
+    return (
+      <Box>
+        <PageHeader
+          title="Users & Access Management"
+          subtitle="Manage user accounts, corporate credential scopes, and assign authorization privileges."
+        />
+        <EmptyState
+          title="Access Restricted"
+          description="User and role management is restricted to Administrators and HR Personnel."
+        />
+      </Box>
+    );
+  }
 
   return (
     <Box>

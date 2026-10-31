@@ -7,7 +7,6 @@ import {
   DialogActions,
   Button,
   Box,
-  Typography,
 } from '@mui/material';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 

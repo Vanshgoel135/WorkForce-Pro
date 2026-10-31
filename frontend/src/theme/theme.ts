@@ -4,72 +4,76 @@ export const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
   palette: {
     mode,
     primary: {
-      main: '#4f46e5',
-      light: '#818cf8',
-      dark: '#3730a3',
-      contrastText: '#ffffff',
+      main: '#C62828', // Deep Red (Vensure brand style)
+      light: '#E53935', // Secondary Red
+      dark: '#B71C1C', // Accent Deep
+      contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#06b6d4',
-      light: '#22d3ee',
-      dark: '#0891b2',
-      contrastText: '#ffffff',
+      main: '#1F2937', // Luxury Charcoal
+      light: '#374151',
+      dark: '#111827',
+      contrastText: '#FFFFFF',
     },
     success: {
-      main: '#10b981',
-      light: '#34d399',
+      main: '#10B981',
+      light: '#34D399',
       dark: '#059669',
-      contrastText: '#ffffff',
+      contrastText: '#FFFFFF',
     },
     warning: {
-      main: '#f59e0b',
-      light: '#fbbf24',
-      dark: '#d97706',
-      contrastText: '#ffffff',
+      main: '#F59E0B',
+      light: '#FBBF24',
+      dark: '#D97706',
+      contrastText: '#FFFFFF',
     },
     error: {
-      main: '#ef4444',
-      light: '#f87171',
-      dark: '#dc2626',
-      contrastText: '#ffffff',
+      main: '#DC2626',
+      light: '#EF4444',
+      dark: '#991B1B',
+      contrastText: '#FFFFFF',
     },
     info: {
-      main: '#3b82f6',
-      light: '#60a5fa',
-      dark: '#2563eb',
-      contrastText: '#ffffff',
+      main: '#2563EB',
+      light: '#3B82F6',
+      dark: '#1D4ED8',
+      contrastText: '#FFFFFF',
     },
     background: {
-      default: mode === 'light' ? '#f8fafc' : '#090d16',
-      paper: mode === 'light' ? '#ffffff' : '#111827',
+      default: mode === 'light' ? '#F9FAFB' : '#0F172A',
+      paper: mode === 'light' ? '#FFFFFF' : '#1E293B',
     },
     text: {
-      primary: mode === 'light' ? '#0f172a' : '#f8fafc',
-      secondary: mode === 'light' ? '#64748b' : '#94a3b8',
+      primary: mode === 'light' ? '#1F2937' : '#F9FAFB',
+      secondary: mode === 'light' ? '#6B7280' : '#9CA3AF',
     },
-    divider: mode === 'light' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.08)',
+    divider: mode === 'light' ? '#E5E7EB' : 'rgba(255, 255, 255, 0.08)',
   },
   typography: {
     fontFamily: '"Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     h1: {
       fontWeight: 800,
-      fontSize: '2.25rem',
-      letterSpacing: '-0.025em',
+      fontSize: '2.5rem',
+      letterSpacing: '-0.03em',
+      lineHeight: 1.2,
     },
     h2: {
       fontWeight: 700,
-      fontSize: '1.875rem',
+      fontSize: '2rem',
       letterSpacing: '-0.025em',
+      lineHeight: 1.25,
     },
     h3: {
       fontWeight: 700,
-      fontSize: '1.5rem',
+      fontSize: '1.625rem',
       letterSpacing: '-0.02em',
+      lineHeight: 1.3,
     },
     h4: {
       fontWeight: 600,
       fontSize: '1.25rem',
       letterSpacing: '-0.015em',
+      lineHeight: 1.35,
     },
     h5: {
       fontWeight: 600,
@@ -82,20 +86,22 @@ export const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
       letterSpacing: '-0.005em',
     },
     subtitle1: {
-      fontSize: '0.925rem',
+      fontSize: '0.95rem',
       fontWeight: 500,
+      lineHeight: 1.5,
     },
     subtitle2: {
-      fontSize: '0.8125rem',
+      fontSize: '0.825rem',
       fontWeight: 500,
+      lineHeight: 1.45,
     },
     body1: {
       fontSize: '0.875rem',
-      lineHeight: 1.5,
+      lineHeight: 1.6,
     },
     body2: {
       fontSize: '0.8125rem',
-      lineHeight: 1.45,
+      lineHeight: 1.5,
     },
     button: {
       textTransform: 'none',
@@ -110,14 +116,16 @@ export const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          scrollbarColor: mode === 'light' ? '#cbd5e1 #f8fafc' : '#334155 #090d16',
+          backgroundColor: mode === 'light' ? '#FFFFFF' : '#0F172A',
+          color: mode === 'light' ? '#1F2937' : '#F9FAFB',
+          scrollbarColor: mode === 'light' ? '#E5E7EB #FFFFFF' : '#334155 #0F172A',
           '&::-webkit-scrollbar': {
             width: 8,
             height: 8,
           },
           '&::-webkit-scrollbar-thumb': {
             borderRadius: 4,
-            backgroundColor: mode === 'light' ? '#cbd5e1' : '#334155',
+            backgroundColor: mode === 'light' ? '#D1D5DB' : '#334155',
           },
         },
       },
@@ -126,11 +134,12 @@ export const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
       styleOverrides: {
         root: {
           borderRadius: 10,
-          padding: '8px 18px',
+          padding: '8px 20px',
           boxShadow: 'none',
           transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          fontWeight: 600,
           '&:hover': {
-            boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+            boxShadow: '0 4px 14px rgba(198, 40, 40, 0.28)',
             transform: 'translateY(-1px)',
           },
           '&:active': {
@@ -138,17 +147,19 @@ export const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
           },
         },
         contained: {
-          background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
-          color: '#ffffff',
+          background: 'linear-gradient(135deg, #C62828 0%, #E53935 100%)',
+          color: '#FFFFFF',
           '&:hover': {
-            background: 'linear-gradient(135deg, #4338ca 0%, #4f46e5 100%)',
+            background: 'linear-gradient(135deg, #B71C1C 0%, #C62828 100%)',
           },
         },
         outlined: {
-          borderColor: mode === 'light' ? '#e2e8f0' : 'rgba(255,255,255,0.15)',
+          borderColor: mode === 'light' ? '#E5E7EB' : 'rgba(255,255,255,0.15)',
+          color: mode === 'light' ? '#1F2937' : '#F9FAFB',
           '&:hover': {
-            backgroundColor: mode === 'light' ? 'rgba(79, 70, 229, 0.04)' : 'rgba(99, 102, 241, 0.1)',
-            borderColor: '#6366f1',
+            borderColor: '#C62828',
+            backgroundColor: mode === 'light' ? '#FEF2F2' : 'rgba(198, 40, 40, 0.1)',
+            color: '#C62828',
           },
         },
       },
@@ -157,43 +168,36 @@ export const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
       styleOverrides: {
         root: {
           borderRadius: 16,
-          backgroundImage: 'none',
-          border: mode === 'light' ? '1px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.07)',
+          backgroundColor: mode === 'light' ? '#FFFFFF' : '#1E293B',
+          border: mode === 'light' ? '1px solid #E5E7EB' : '1px solid rgba(255,255,255,0.08)',
           boxShadow:
             mode === 'light'
               ? '0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04)'
-              : '0 4px 20px 0 rgba(0, 0, 0, 0.35)',
-          transition: 'all 0.25s ease-in-out',
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundImage: 'none',
-        },
-        elevation1: {
-          boxShadow:
-            mode === 'light'
-              ? '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)'
-              : '0 4px 14px 0 rgba(0, 0, 0, 0.3)',
+              : '0 4px 20px rgba(0,0,0,0.3)',
+          transition: 'all 0.25s ease',
+          '&:hover': {
+            boxShadow:
+              mode === 'light'
+                ? '0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04)'
+                : '0 12px 30px rgba(0,0,0,0.45)',
+          },
         },
       },
     },
     MuiTableCell: {
       styleOverrides: {
         root: {
-          borderBottom: mode === 'light' ? '1px solid #f1f5f9' : '1px solid rgba(255, 255, 255, 0.06)',
+          borderBottom: mode === 'light' ? '1px solid #F3F4F6' : '1px solid rgba(255,255,255,0.06)',
           padding: '14px 16px',
           fontSize: '0.85rem',
         },
         head: {
           fontWeight: 700,
-          color: mode === 'light' ? '#475569' : '#94a3b8',
-          backgroundColor: mode === 'light' ? '#f8fafc' : '#151e2e',
+          color: mode === 'light' ? '#6B7280' : '#9CA3AF',
+          backgroundColor: mode === 'light' ? '#F9FAFB' : '#111827',
           textTransform: 'uppercase',
           fontSize: '0.72rem',
-          letterSpacing: '0.06em',
+          letterSpacing: '0.05em',
         },
       },
     },
@@ -202,38 +206,24 @@ export const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
         root: {
           fontWeight: 600,
           borderRadius: 8,
-          fontSize: '0.75rem',
         },
-      },
-    },
-    MuiTextField: {
-      defaultProps: {
-        variant: 'outlined',
-        size: 'small',
       },
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
           borderRadius: 10,
-          '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: mode === 'light' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.12)',
+          transition: 'all 0.2s ease',
+          '& fieldset': {
+            borderColor: mode === 'light' ? '#E5E7EB' : 'rgba(255,255,255,0.15)',
           },
-          '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#6366f1',
+          '&:hover fieldset': {
+            borderColor: '#E53935',
           },
-          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#4f46e5',
-            borderWidth: '2px',
+          '&.Mui-focused fieldset': {
+            borderColor: '#C62828',
+            borderWidth: '1.5px',
           },
-        },
-      },
-    },
-    MuiDialog: {
-      styleOverrides: {
-        paper: {
-          borderRadius: 20,
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         },
       },
     },
@@ -243,3 +233,5 @@ export const getDesignTokens = (mode: 'light' | 'dark'): ThemeOptions => ({
 export const createAppTheme = (mode: 'light' | 'dark') => {
   return createTheme(getDesignTokens(mode));
 };
+
+export default createAppTheme;

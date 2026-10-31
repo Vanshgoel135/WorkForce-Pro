@@ -11,7 +11,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Typography,
   Button,
   TextField,
@@ -34,7 +33,6 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import { toast } from 'react-toastify';
 
 import PageHeader from '../../components/common/PageHeader';
@@ -55,6 +53,7 @@ export const EmployeeListPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('ALL');
   const [selectedDepartment, setSelectedDepartment] = useState<string>('ALL');
+  const [sortField, setSortField] = useState<string>('DEFAULT');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -78,10 +77,32 @@ export const EmployeeListPage: React.FC = () => {
     dateOfJoining: new Date().toISOString().split('T')[0],
   });
 
-  // Queries
+  const canManage = user?.role === 'ADMIN' || user?.role === 'HR';
+  const isAdmin = user?.role === 'ADMIN';
+
+  // Queries: using real backend search / sort / get endpoints
   const { data: employees = [], isLoading } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => employeeService.getAll(),
+    queryKey: ['employees', sortField, searchTerm],
+    queryFn: async () => {
+      const orgId = user?.organizationId || 1;
+      if (searchTerm.trim()) {
+        try {
+          const results = await employeeService.searchByName(orgId, searchTerm.trim());
+          if (results && results.length > 0) return results;
+        } catch {
+          // fallback to all
+        }
+      }
+      if (sortField !== 'DEFAULT') {
+        try {
+          return await employeeService.sort(orgId, sortField);
+        } catch {
+          // fallback
+        }
+      }
+      return await employeeService.getAll();
+    },
+    enabled: canManage,
   });
 
   const { data: departments = [] } = useQuery({
@@ -235,8 +256,22 @@ export const EmployeeListPage: React.FC = () => {
     return filteredEmployees.slice(start, start + rowsPerPage);
   }, [filteredEmployees, page, rowsPerPage]);
 
-  const canManage = user?.role === 'ADMIN' || user?.role === 'HR';
-  const isAdmin = user?.role === 'ADMIN';
+  if (!canManage) {
+    return (
+      <Box>
+        <PageHeader
+          title="Employee Directory"
+          subtitle="Workforce directory is accessible by Organization Administrators and HR Managers."
+        />
+        <EmptyState
+          title="Access Restricted"
+          description="Employee directory viewing is restricted to HR and Management."
+          actionText="View My Profile"
+          onAction={() => navigate('/profile')}
+        />
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -261,7 +296,7 @@ export const EmployeeListPage: React.FC = () => {
       <Card sx={{ mb: 3, borderRadius: 4 }}>
         <CardContent sx={{ p: 2.5 }}>
           <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-            <Grid size={{ xs: 12, md: 5 }}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
                 placeholder="Search employee by name, email, or department..."
@@ -282,7 +317,7 @@ export const EmployeeListPage: React.FC = () => {
               />
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6, md: 3.5 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <TextField
                 select
                 fullWidth
@@ -302,7 +337,7 @@ export const EmployeeListPage: React.FC = () => {
               </TextField>
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6, md: 3.5 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 2.5 }}>
               <TextField
                 select
                 fullWidth
@@ -317,6 +352,24 @@ export const EmployeeListPage: React.FC = () => {
                 <MenuItem value="ADMIN">ADMIN</MenuItem>
                 <MenuItem value="HR">HR</MenuItem>
                 <MenuItem value="EMPLOYEE">EMPLOYEE</MenuItem>
+              </TextField>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 2.5 }}>
+              <TextField
+                select
+                fullWidth
+                label="Backend Sort"
+                value={sortField}
+                onChange={(e) => {
+                  setSortField(e.target.value);
+                  setPage(0);
+                }}
+              >
+                <MenuItem value="DEFAULT">Default Order</MenuItem>
+                <MenuItem value="name">Sort by Name</MenuItem>
+                <MenuItem value="salary">Sort by Salary</MenuItem>
+                <MenuItem value="dateOfJoining">Sort by Joining Date</MenuItem>
               </TextField>
             </Grid>
           </Grid>

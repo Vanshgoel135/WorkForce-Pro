@@ -22,70 +22,30 @@ export const parseJwt = (token: string): JwtPayload | null => {
 
 export const authService = {
   login: async (credentials: LoginRequest): Promise<{ token: string; user: AuthUser }> => {
-    try {
-      const response = await api.post<LoginResponse>('/auth/login', credentials);
-      const { token } = response.data;
+    // Real call to Spring Boot backend POST /auth/login
+    const response = await api.post<LoginResponse>('/auth/login', credentials);
+    const { token } = response.data;
 
-      const payload = parseJwt(token);
-      if (!payload) {
-        throw new Error('Invalid token structure received from server');
-      }
-
-      const user: AuthUser = {
-        email: payload.sub,
-        role: payload.role,
-        organizationId: payload.organizationId,
-        token,
-      };
-
-      localStorage.setItem('workforce_token', token);
-      localStorage.setItem('workforce_user', JSON.stringify(user));
-
-      return { token, user };
-    } catch (err: any) {
-      // If backend is offline or demo credentials are used for testing, provide seamless preview session
-      const isOffline = !err.response || err.code === 'ERR_NETWORK' || err.message?.includes('Network Error');
-      const isDemoCreds =
-        credentials.password === 'admin123' ||
-        credentials.password === 'hr123' ||
-        credentials.password === 'emp123' ||
-        credentials.password === '1234' ||
-        credentials.password === 'password';
-
-      if (isOffline || isDemoCreds) {
-        console.warn('[WorkForce Pro] Logging in with demo credentials preview mode.');
-        const role = credentials.username.toLowerCase().includes('hr')
-          ? 'HR'
-          : credentials.username.toLowerCase().includes('emp')
-          ? 'EMPLOYEE'
-          : 'ADMIN';
-
-        const b64 = (obj: any) =>
-          btoa(JSON.stringify(obj)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-        const header = b64({ alg: 'HS256', typ: 'JWT' });
-        const payload = b64({
-          sub: credentials.username || 'admin@workforce.com',
-          role: role,
-          organizationId: 1,
-          exp: Math.floor(Date.now() / 1000) + 86400 * 7,
-        });
-        const demoToken = `${header}.${payload}.demo_signature_workforce_pro`;
-
-        const user: AuthUser = {
-          email: credentials.username || 'admin@workforce.com',
-          role: role as any,
-          organizationId: 1,
-          token: demoToken,
-        };
-
-        localStorage.setItem('workforce_token', demoToken);
-        localStorage.setItem('workforce_user', JSON.stringify(user));
-
-        return { token: demoToken, user };
-      }
-
-      throw err;
+    if (!token) {
+      throw new Error('Authentication failed: No token returned from server.');
     }
+
+    const payload = parseJwt(token);
+    if (!payload) {
+      throw new Error('Invalid token structure received from server');
+    }
+
+    const user: AuthUser = {
+      email: payload.sub,
+      role: payload.role,
+      organizationId: payload.organizationId,
+      token,
+    };
+
+    localStorage.setItem('workforce_token', token);
+    localStorage.setItem('workforce_user', JSON.stringify(user));
+
+    return { token, user };
   },
 
   getCurrentUser: (): AuthUser | null => {

@@ -40,25 +40,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         // ignore
       }
     }
-    return [
-      {
-        id: '1',
-        title: 'Welcome to WorkForce Pro',
-        message: 'Your multi-tenant HRMS and workforce intelligence platform is ready.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        read: false,
-        type: 'success',
-      },
-      {
-        id: '2',
-        title: 'Payroll Cycle Active',
-        message: 'Review and confirm salary structures for the active billing cycle.',
-        timestamp: '1 hour ago',
-        read: false,
-        type: 'info',
-        link: '/salary',
-      },
-    ];
+    return [];
   });
 
   useEffect(() => {
@@ -89,6 +71,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const clearAll = () => {
     setNotifications([]);
+    localStorage.removeItem('workforce_notifications');
   };
 
   return (

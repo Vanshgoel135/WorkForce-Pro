@@ -21,7 +21,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   subtitle,
   icon,
   trend,
-  color = '#4f46e5',
+  color = '#C62828',
   loading = false,
 }) => {
   return (

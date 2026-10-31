@@ -32,7 +32,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
-import EventBusyOutlinedIcon from '@mui/icons-material/EventBusyOutlined';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
 
@@ -48,6 +47,7 @@ import { LeaveRequest } from '../../types';
 export const LeaveListPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const isAdminOrHr = user?.role === 'ADMIN' || user?.role === 'HR';
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatusTab, setSelectedStatusTab] = useState('ALL');
@@ -63,20 +63,39 @@ export const LeaveListPage: React.FC = () => {
     reason: '',
   });
 
+  // Current employee discovery for EMPLOYEE role
+  const { data: currentEmployee } = useQuery({
+    queryKey: ['current-employee-profile', user?.email],
+    queryFn: () => (user ? employeeService.resolveCurrentEmployee(user) : null),
+    enabled: Boolean(user?.email),
+  });
+
   // Queries
   const { data: leaves = [], isLoading: isLeavesLoading } = useQuery({
-    queryKey: ['leaves'],
-    queryFn: () => leaveService.getAll(),
+    queryKey: ['leaves', isAdminOrHr ? 'all' : currentEmployee?.id],
+    queryFn: () => {
+      if (isAdminOrHr) {
+        return leaveService.getAll();
+      }
+      if (currentEmployee?.id) {
+        return leaveService.getByEmployeeId(currentEmployee.id);
+      }
+      return Promise.resolve([]);
+    },
+    enabled: isAdminOrHr || Boolean(currentEmployee?.id),
   });
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
     queryFn: () => employeeService.getAll(),
+    enabled: isAdminOrHr,
   });
 
   // Default to user's employee ID
   React.useEffect(() => {
-    if (!selectedEmployeeId && employees.length > 0) {
+    if (!isAdminOrHr && currentEmployee?.id) {
+      setSelectedEmployeeId(String(currentEmployee.id));
+    } else if (isAdminOrHr && !selectedEmployeeId && employees.length > 0) {
       const match = employees.find((e) => e.email === user?.email);
       if (match?.id) {
         setSelectedEmployeeId(String(match.id));
@@ -84,7 +103,7 @@ export const LeaveListPage: React.FC = () => {
         setSelectedEmployeeId(String(employees[0].id));
       }
     }
-  }, [employees, user, selectedEmployeeId]);
+  }, [isAdminOrHr, currentEmployee, employees, user, selectedEmployeeId]);
 
   // Mutations
   const applyMutation = useMutation({
@@ -132,12 +151,13 @@ export const LeaveListPage: React.FC = () => {
 
   const handleApply = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedEmployeeId) {
+    const targetEmpId = Number(selectedEmployeeId || currentEmployee?.id);
+    if (!targetEmpId) {
       toast.warning('Please select an employee.');
       return;
     }
     applyMutation.mutate({
-      empId: Number(selectedEmployeeId),
+      empId: targetEmpId,
       data: leaveForm,
     });
   };
@@ -151,7 +171,7 @@ export const LeaveListPage: React.FC = () => {
 
       const matchStatus =
         selectedStatusTab === 'ALL' ||
-        leave.status?.toUpperCase() === selectedStatusTab;
+        leave.status?.toUpperCase() === selectedStatusTab.toUpperCase();
 
       return matchSearch && matchStatus;
     });
@@ -162,13 +182,13 @@ export const LeaveListPage: React.FC = () => {
     return filteredLeaves.slice(start, start + rowsPerPage);
   }, [filteredLeaves, page, rowsPerPage]);
 
-  const canManage = user?.role === 'ADMIN' || user?.role === 'HR';
+  const canManage = isAdminOrHr;
 
   return (
     <Box>
       <PageHeader
-        title="Leave Management"
-        subtitle="Submit time-off requests, monitor vacation balances, and review team approval pipelines."
+        title={isAdminOrHr ? 'Leave Requests & Approvals' : 'My Leave Applications'}
+        subtitle="Manage paid time off, sick leave balances, and executive approval workflows."
         action={
           <Button
             variant="contained"
@@ -181,15 +201,13 @@ export const LeaveListPage: React.FC = () => {
         }
       />
 
-      {/* Tabs and Search Bar */}
+      {/* Filter Tabs & Search */}
       <Card sx={{ mb: 3, borderRadius: 4 }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2 }}>
           <Tabs
             value={selectedStatusTab}
-            onChange={(_, val) => {
-              setSelectedStatusTab(val);
-              setPage(0);
-            }}
+            onChange={(_, val) => setSelectedStatusTab(val)}
+            indicatorColor="primary"
           >
             <Tab label={`All (${leaves.length})`} value="ALL" sx={{ fontWeight: 600 }} />
             <Tab
@@ -210,10 +228,10 @@ export const LeaveListPage: React.FC = () => {
           </Tabs>
         </Box>
 
-        <CardContent sx={{ p: 2 }}>
+        <CardContent sx={{ p: 2.5 }}>
           <TextField
             fullWidth
-            placeholder="Search leaves by employee or reason..."
+            placeholder="Search by employee name or reason..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -241,7 +259,7 @@ export const LeaveListPage: React.FC = () => {
           description={
             searchTerm
               ? `No requests match "${searchTerm}".`
-              : 'There are no active leave applications under this category.'
+              : 'There are no active leave records for this status.'
           }
           actionText="Apply for Leave"
           onAction={() => setApplyModalOpen(true)}
@@ -354,45 +372,50 @@ export const LeaveListPage: React.FC = () => {
               <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
                 Employee *
               </Typography>
-              <TextField
-                select
-                fullWidth
-                required
-                value={selectedEmployeeId}
-                onChange={(e) => setSelectedEmployeeId(e.target.value)}
-              >
-                {employees.map((emp) => (
-                  <MenuItem key={emp.id} value={String(emp.id)}>
-                    {emp.name} ({emp.email})
-                  </MenuItem>
-                ))}
-              </TextField>
+              {isAdminOrHr ? (
+                <TextField
+                  select
+                  fullWidth
+                  required
+                  value={selectedEmployeeId}
+                  onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                >
+                  {employees.map((emp) => (
+                    <MenuItem key={emp.id} value={String(emp.id)}>
+                      {emp.name} ({emp.email})
+                    </MenuItem>
+                  ))}
+                </TextField>
+              ) : (
+                <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2.5, bgcolor: 'action.hover' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                    {currentEmployee?.name || user?.email} (ID #{currentEmployee?.id || '—'})
+                  </Typography>
+                </Paper>
+              )}
             </Box>
 
-            <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid container spacing={2} sx={{ mb: 2.5 }}>
               <Grid size={{ xs: 6 }}>
-                <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-                  From Date *
-                </Typography>
                 <TextField
+                  type="date"
                   fullWidth
                   required
-                  type="date"
+                  label="From Date"
                   value={leaveForm.fromDate}
                   onChange={(e) => setLeaveForm({ ...leaveForm, fromDate: e.target.value })}
+                  slotProps={{ inputLabel: { shrink: true } }}
                 />
               </Grid>
-
               <Grid size={{ xs: 6 }}>
-                <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-                  To Date *
-                </Typography>
                 <TextField
+                  type="date"
                   fullWidth
                   required
-                  type="date"
+                  label="To Date"
                   value={leaveForm.toDate}
                   onChange={(e) => setLeaveForm({ ...leaveForm, toDate: e.target.value })}
+                  slotProps={{ inputLabel: { shrink: true } }}
                 />
               </Grid>
             </Grid>
@@ -406,18 +429,23 @@ export const LeaveListPage: React.FC = () => {
                 required
                 multiline
                 rows={3}
-                placeholder="Medical appointment, family vacation, personal..."
+                placeholder="e.g., Annual family vacation, personal emergency, medical leave..."
                 value={leaveForm.reason}
                 onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })}
               />
             </Box>
           </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2 }}>
+
+          <DialogActions sx={{ p: 2.5 }}>
             <Button onClick={() => setApplyModalOpen(false)} color="inherit">
               Cancel
             </Button>
-            <Button type="submit" variant="contained" disabled={applyMutation.isPending}>
-              {applyMutation.isPending ? <CircularProgress size={20} /> : 'Submit Request'}
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={applyMutation.isPending}
+            >
+              {applyMutation.isPending ? <CircularProgress size={24} /> : 'Submit Application'}
             </Button>
           </DialogActions>
         </Box>

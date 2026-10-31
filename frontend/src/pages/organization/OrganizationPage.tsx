@@ -68,9 +68,12 @@ export const OrganizationPage: React.FC = () => {
     queryFn: () => departmentService.getAll(),
   });
 
+  const isAdminOrHr = user?.role === 'ADMIN' || user?.role === 'HR';
+
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
     queryFn: () => employeeService.getAll(),
+    enabled: isAdminOrHr,
   });
 
   useEffect(() => {

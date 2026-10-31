@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Box,
   Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
@@ -16,7 +15,6 @@ import {
 } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import PageHeader from '../../components/common/PageHeader';
 
 interface PermissionRow {

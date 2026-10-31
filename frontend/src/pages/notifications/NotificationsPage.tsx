@@ -7,14 +7,12 @@ import {
   Typography,
   List,
   ListItem,
-  ListItemText,
   ListItemIcon,
   Button,
   Tabs,
   Tab,
   IconButton,
   Tooltip,
-  Paper,
 } from '@mui/material';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';

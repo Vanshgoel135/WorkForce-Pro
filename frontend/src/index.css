@@ -2,6 +2,13 @@
 
 :root {
   --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --primary-red: #C62828;
+  --secondary-red: #E53935;
+  --accent-red: #B71C1C;
+  --soft-red: #FEF2F2;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+  --border-color: #E5E7EB;
 }
 
 * {
@@ -16,6 +23,8 @@ html, body, #root {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #FFFFFF;
+  color: #1F2937;
 }
 
 /* Glassmorphism helpers */
@@ -25,12 +34,12 @@ html, body, #root {
 }
 
 .glass-panel-light {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(229, 231, 235, 0.8);
 }
 
 .glass-panel-dark {
-  background: rgba(17, 24, 39, 0.85);
+  background: rgba(15, 23, 42, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -45,42 +54,51 @@ html, body, #root {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.5);
+  background: rgba(209, 213, 219, 0.7);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 114, 128, 0.8);
+  background: rgba(156, 163, 175, 0.9);
 }
 
 /* Pulse badge animation */
 @keyframes pulse-ring {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.6);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 8px rgba(198, 40, 40, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0);
   }
 }
 
-.pulse-online {
+.pulse-red {
   animation: pulse-ring 2s infinite;
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+/* Premium Gradient Text */
+.gradient-text-red {
+  background: linear-gradient(135deg, #C62828 0%, #E53935 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Floating AI glow */
-.ai-glow {
-  box-shadow: 0 0 25px rgba(99, 102, 241, 0.45);
+/* Corporate Red Shadows */
+.shadow-red-sm {
+  box-shadow: 0 4px 14px rgba(198, 40, 40, 0.15);
+}
+
+.shadow-red-md {
+  box-shadow: 0 8px 24px rgba(198, 40, 40, 0.22);
+}
+
+/* Smooth scrolling for landing page sections */
+html {
+  scroll-behavior: smooth;
 }

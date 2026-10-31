@@ -24,8 +24,6 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import HowToRegOutlinedIcon from '@mui/icons-material/HowToRegOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
-import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
@@ -37,11 +35,12 @@ import EmptyState from '../../components/common/EmptyState';
 import attendanceService from '../../services/attendanceService';
 import employeeService from '../../services/employeeService';
 import { useAuth } from '../../context/AuthContext';
-import { Attendance, Employee } from '../../types';
+import { Attendance } from '../../types';
 
 export const AttendancePage: React.FC = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const isAdminOrHr = user?.role === 'ADMIN' || user?.role === 'HR';
 
   const [currentTime, setCurrentTime] = useState(dayjs().format('HH:mm:ss'));
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('');
@@ -58,20 +57,39 @@ export const AttendancePage: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Queries
-  const { data: attendanceList = [], isLoading: isAttendanceLoading } = useQuery({
-    queryKey: ['attendance'],
-    queryFn: () => attendanceService.getAll(),
+  // For Employee role: resolve current employee ID
+  const { data: currentEmployee } = useQuery({
+    queryKey: ['current-employee-profile', user?.email],
+    queryFn: () => (user ? employeeService.resolveCurrentEmployee(user) : null),
+    enabled: Boolean(user?.email),
   });
 
+  // Queries
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
     queryFn: () => employeeService.getAll(),
+    enabled: isAdminOrHr,
   });
 
-  // Auto-select logged in employee if match found
+  const { data: attendanceList = [], isLoading: isAttendanceLoading } = useQuery({
+    queryKey: ['attendance', isAdminOrHr ? 'all' : currentEmployee?.id],
+    queryFn: () => {
+      if (isAdminOrHr) {
+        return attendanceService.getAll();
+      }
+      if (currentEmployee?.id) {
+        return attendanceService.getByEmployeeId(currentEmployee.id);
+      }
+      return Promise.resolve([]);
+    },
+    enabled: isAdminOrHr || Boolean(currentEmployee?.id),
+  });
+
+  // Auto-select employee ID
   useEffect(() => {
-    if (!selectedEmployeeId && employees.length > 0) {
+    if (!isAdminOrHr && currentEmployee?.id) {
+      setSelectedEmployeeId(String(currentEmployee.id));
+    } else if (isAdminOrHr && !selectedEmployeeId && employees.length > 0) {
       const match = employees.find((e) => e.email === user?.email);
       if (match?.id) {
         setSelectedEmployeeId(String(match.id));
@@ -79,7 +97,7 @@ export const AttendancePage: React.FC = () => {
         setSelectedEmployeeId(String(employees[0].id));
       }
     }
-  }, [employees, user, selectedEmployeeId]);
+  }, [isAdminOrHr, currentEmployee, employees, user, selectedEmployeeId]);
 
   // CheckIn mutation
   const checkInMutation = useMutation({
@@ -87,6 +105,7 @@ export const AttendancePage: React.FC = () => {
     onSuccess: (data: Attendance) => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['personal-attendance'] });
       toast.success(`Check-in recorded at ${data.checkIn || 'now'}!`);
     },
     onError: (err: any) => {
@@ -100,6 +119,7 @@ export const AttendancePage: React.FC = () => {
     onSuccess: (data: Attendance) => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['personal-attendance'] });
       toast.success(`Check-out recorded at ${data.checkOut || 'now'}!`);
     },
     onError: (err: any) => {
@@ -108,19 +128,21 @@ export const AttendancePage: React.FC = () => {
   });
 
   const handleCheckIn = () => {
-    if (!selectedEmployeeId) {
+    const empId = Number(selectedEmployeeId || currentEmployee?.id);
+    if (!empId) {
       toast.warning('Please select an employee.');
       return;
     }
-    checkInMutation.mutate(Number(selectedEmployeeId));
+    checkInMutation.mutate(empId);
   };
 
   const handleCheckOut = () => {
-    if (!selectedEmployeeId) {
+    const empId = Number(selectedEmployeeId || currentEmployee?.id);
+    if (!empId) {
       toast.warning('Please select an employee.');
       return;
     }
-    checkOutMutation.mutate(Number(selectedEmployeeId));
+    checkOutMutation.mutate(empId);
   };
 
   // Filtered attendance records
@@ -177,21 +199,37 @@ export const AttendancePage: React.FC = () => {
               </Typography>
 
               <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Select Employee"
-                    value={selectedEmployeeId}
-                    onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                  >
-                    {employees.map((emp) => (
-                      <MenuItem key={emp.id} value={String(emp.id)}>
-                        {emp.name} ({emp.email})
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
+                {isAdminOrHr ? (
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      select
+                      fullWidth
+                      label="Select Employee"
+                      value={selectedEmployeeId}
+                      onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                    >
+                      {employees.map((emp) => (
+                        <MenuItem key={emp.id} value={String(emp.id)}>
+                          {emp.name} ({emp.email})
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                ) : (
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <Paper
+                      variant="outlined"
+                      sx={{ p: 1.5, borderRadius: 2.5, bgcolor: 'action.hover' }}
+                    >
+                      <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                        Logging Attendance For:
+                      </Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                        {currentEmployee?.name || user?.email} (ID #{currentEmployee?.id || '—'})
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                )}
 
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Box sx={{ display: 'flex', gap: 1.5 }}>
@@ -230,14 +268,16 @@ export const AttendancePage: React.FC = () => {
             <CardContent sx={{ p: 3.5, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
               <Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.secondary' }}>
-                  Today's Headcount Status
+                  {isAdminOrHr ? "Today's Headcount Status" : 'My Shift Status Today'}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5, mt: 1 }}>
                   <Typography variant="h3" sx={{ fontWeight: 800, color: 'success.main' }}>
-                    {presentTodayCount}
+                    {isAdminOrHr ? presentTodayCount : (presentTodayCount > 0 ? 'Active' : 'Not Checked In')}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    of {employees.length} employees checked in
+                    {isAdminOrHr
+                      ? `of ${employees.length} employees checked in`
+                      : `on ${dayjs().format('MMMM D')}`}
                   </Typography>
                 </Box>
               </Box>
@@ -249,16 +289,16 @@ export const AttendancePage: React.FC = () => {
                   <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                     Standard Daily Shift
                   </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    09:00 AM – 06:00 PM
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                    09:00 AM — 06:00 PM
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: 'right' }}>
                   <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                    Tracking Mode
+                    Biometric Verification
                   </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                    Automatic LocalTime
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'success.main' }}>
+                    Realtime Sync
                   </Typography>
                 </Box>
               </Box>
@@ -271,10 +311,10 @@ export const AttendancePage: React.FC = () => {
       <Card sx={{ mb: 3, borderRadius: 4 }}>
         <CardContent sx={{ p: 2.5 }}>
           <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-            <Grid size={{ xs: 12, md: 8 }}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                placeholder="Search attendance by employee name or status..."
+                placeholder="Search by employee name, email, or status..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -292,33 +332,51 @@ export const AttendancePage: React.FC = () => {
               />
             </Grid>
 
-            <Grid size={{ xs: 12, md: 4 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <TextField
-                fullWidth
                 type="date"
-                label="Filter by Specific Date"
-                slotProps={{ inputLabel: { shrink: true } }}
+                fullWidth
+                label="Filter by Date"
                 value={dateFilter}
                 onChange={(e) => {
                   setDateFilter(e.target.value);
                   setPage(0);
                 }}
+                slotProps={{
+                  inputLabel: { shrink: true },
+                }}
               />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                color="inherit"
+                onClick={() => {
+                  setSearchTerm('');
+                  setDateFilter('');
+                  setPage(0);
+                }}
+                sx={{ py: 1.8, borderRadius: 2.5 }}
+              >
+                Reset Filters
+              </Button>
             </Grid>
           </Grid>
         </CardContent>
       </Card>
 
-      {/* Main Table */}
+      {/* Main Attendance Table */}
       {isAttendanceLoading ? (
-        <LoadingSkeleton rows={6} type="table" />
+        <LoadingSkeleton rows={5} type="table" />
       ) : filteredAttendance.length === 0 ? (
         <EmptyState
           title="No attendance records found"
           description={
             searchTerm || dateFilter
-              ? 'No logs match the current search filters.'
-              : 'Record check-in to generate today’s first attendance entry.'
+              ? 'No logs matched the selected filters.'
+              : 'Start logging daily check-ins using the recorder above.'
           }
         />
       ) : (
@@ -327,61 +385,79 @@ export const AttendancePage: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Employee</TableCell>
                   <TableCell>Date</TableCell>
-                  <TableCell>Check-In</TableCell>
-                  <TableCell>Check-Out</TableCell>
+                  <TableCell>Employee</TableCell>
+                  <TableCell>Check In</TableCell>
+                  <TableCell>Check Out</TableCell>
+                  <TableCell>Working Hours</TableCell>
                   <TableCell align="right">Status</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {paginatedAttendance.map((item) => (
-                  <TableRow key={item.id} hover>
-                    <TableCell>
-                      <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                          {item.employee?.name || `Employee #${item.employee?.id || '—'}`}
+                {paginatedAttendance.map((item) => {
+                  // Calculate duration if checkin and checkout exist
+                  let duration = 'In Progress';
+                  if (item.checkIn && item.checkOut) {
+                    const start = dayjs(`2000-01-01 ${item.checkIn}`);
+                    const end = dayjs(`2000-01-01 ${item.checkOut}`);
+                    const diffMins = end.diff(start, 'minute');
+                    if (diffMins > 0) {
+                      const hrs = Math.floor(diffMins / 60);
+                      const mins = diffMins % 60;
+                      duration = `${hrs}h ${mins}m`;
+                    }
+                  }
+
+                  return (
+                    <TableRow key={item.id} hover>
+                      <TableCell sx={{ fontWeight: 600 }}>{item.date}</TableCell>
+                      <TableCell>
+                        <Box>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                            {item.employee?.name || `Employee #${item.employee?.id || '—'}`}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                            {item.employee?.email}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <CheckCircleOutlineIcon color="success" sx={{ fontSize: '1rem' }} />
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {item.checkIn || '—'}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2">{item.checkOut || '—'}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                          {duration}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          {item.employee?.email || ''}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {item.date || '—'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
-                        {item.checkIn ? String(item.checkIn) : '—'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
-                        {item.checkOut ? String(item.checkOut) : 'In progress'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <StatusBadge status={item.status} size="small" />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell align="right">
+                        <StatusBadge status={item.status || 'Present'} size="small" />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
             component="div"
             count={filteredAttendance.length}
-            rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={(_, newPage) => setPage(newPage)}
+            rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(e) => {
               setRowsPerPage(parseInt(e.target.value, 10));
               setPage(0);
             }}
+            rowsPerPageOptions={[5, 10, 25, 50]}
           />
         </Card>
       )}

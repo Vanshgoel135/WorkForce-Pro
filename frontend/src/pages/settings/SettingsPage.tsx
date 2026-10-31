@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
-import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
 import { toast } from 'react-toastify';
@@ -33,7 +32,7 @@ export const SettingsPage: React.FC = () => {
     toast.success('Local preferences and temporary cache refreshed.');
   };
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+  const apiUrl = import.meta.env.VITE_API_URL || '/api';
 
   return (
     <Box>

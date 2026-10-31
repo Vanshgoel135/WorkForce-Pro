@@ -17,10 +17,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Divider,
-  Chip,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -29,10 +26,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import EventBusyOutlinedIcon from '@mui/icons-material/EventBusyOutlined';
 import HowToRegOutlinedIcon from '@mui/icons-material/HowToRegOutlined';
-import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
@@ -216,7 +211,7 @@ export const EmployeeDetailsPage: React.FC = () => {
         <Box
           sx={{
             height: 120,
-            background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+            background: 'linear-gradient(135deg, #B71C1C 0%, #C62828 50%, #E53935 100%)',
           }}
         />
         <CardContent sx={{ p: { xs: 2.5, sm: 4 }, mt: -7 }}>

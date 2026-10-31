@@ -13,7 +13,6 @@ import {
   Divider,
   CircularProgress,
   Tooltip,
-  Chip,
 } from '@mui/material';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import SendIcon from '@mui/icons-material/Send';

@@ -10,7 +10,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Typography,
   Button,
   TextField,
@@ -30,7 +29,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
-import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
@@ -50,6 +48,8 @@ import { useAuth } from '../../context/AuthContext';
 export const SalaryListPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const isAdminOrHr = user?.role === 'ADMIN' || user?.role === 'HR';
+  const isAdmin = user?.role === 'ADMIN';
 
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
@@ -70,15 +70,32 @@ export const SalaryListPage: React.FC = () => {
     payDate: dayjs().format('YYYY-MM-DD'),
   });
 
+  // Current employee discovery for EMPLOYEE role
+  const { data: currentEmployee } = useQuery({
+    queryKey: ['current-employee-profile', user?.email],
+    queryFn: () => (user ? employeeService.resolveCurrentEmployee(user) : null),
+    enabled: Boolean(user?.email),
+  });
+
   // Queries
   const { data: salaries = [], isLoading: isSalaryLoading } = useQuery({
-    queryKey: ['salaries'],
-    queryFn: () => salaryService.getAll(),
+    queryKey: ['salaries', isAdminOrHr ? 'all' : currentEmployee?.id],
+    queryFn: () => {
+      if (isAdminOrHr) {
+        return salaryService.getAll();
+      }
+      if (currentEmployee?.id) {
+        return salaryService.getByEmployeeId(currentEmployee.id);
+      }
+      return Promise.resolve([]);
+    },
+    enabled: isAdminOrHr || Boolean(currentEmployee?.id),
   });
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
     queryFn: () => employeeService.getAll(),
+    enabled: isAdminOrHr,
   });
 
   // Calculate Aggregates
@@ -129,12 +146,12 @@ export const SalaryListPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['salaries'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      toast.success('Salary record deleted!');
+      toast.success('Salary record removed!');
       setDeleteDialogOpen(false);
       setSalaryToDelete(null);
     },
     onError: (err: any) => {
-      toast.error(err.message || 'Failed to delete salary');
+      toast.error(err.message || 'Failed to delete salary record');
     },
   });
 
@@ -169,21 +186,24 @@ export const SalaryListPage: React.FC = () => {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = {
+    const payload: Partial<Salary> = {
       basicSalary: Number(formData.basicSalary) || 0,
       bonus: Number(formData.bonus) || 0,
       deduction: Number(formData.deduction) || 0,
       payDate: formData.payDate,
     };
 
-    if (editingSalary?.id) {
+    if (editingSalary && editingSalary.id) {
       updateMutation.mutate({ id: editingSalary.id, data: payload });
     } else {
       if (!selectedEmployeeId) {
         toast.warning('Please select an employee.');
         return;
       }
-      createMutation.mutate({ empId: Number(selectedEmployeeId), data: payload });
+      createMutation.mutate({
+        empId: Number(selectedEmployeeId),
+        data: payload,
+      });
     }
   };
 
@@ -193,20 +213,12 @@ export const SalaryListPage: React.FC = () => {
     }
   };
 
-  // Preview computed Net Salary in modal
-  const computedNetSalary = useMemo(() => {
-    const basic = Number(formData.basicSalary) || 0;
-    const bonus = Number(formData.bonus) || 0;
-    const ded = Number(formData.deduction) || 0;
-    return basic + bonus - ded;
-  }, [formData.basicSalary, formData.bonus, formData.deduction]);
-
-  // Filtered
+  // Filtered salaries
   const filteredSalaries = useMemo(() => {
     return salaries.filter((sal) => {
       const matchSearch =
         sal.employee?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sal.payDate?.includes(searchTerm);
+        sal.payDate?.toLowerCase().includes(searchTerm.toLowerCase());
       return matchSearch;
     });
   }, [salaries, searchTerm]);
@@ -216,14 +228,13 @@ export const SalaryListPage: React.FC = () => {
     return filteredSalaries.slice(start, start + rowsPerPage);
   }, [filteredSalaries, page, rowsPerPage]);
 
-  const canManage = user?.role === 'ADMIN' || user?.role === 'HR';
-  const isAdmin = user?.role === 'ADMIN';
+  const canManage = isAdminOrHr;
 
   return (
     <Box>
       <PageHeader
-        title="Salary & Corporate Payroll"
-        subtitle="Manage wage disbursements, employee allowances, deductions, and financial summaries."
+        title={isAdminOrHr ? 'Payroll & Salary Management' : 'My Salary Slips'}
+        subtitle="Manage salary disbursements, incentives, tax deductions, and net compensation records."
         action={
           canManage && (
             <Button
@@ -242,11 +253,11 @@ export const SalaryListPage: React.FC = () => {
       <Grid container spacing={2.5} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, sm: 4 }}>
           <StatCard
-            title="Total Net Payroll"
+            title={isAdminOrHr ? 'Total Net Payroll' : 'Total Net Compensation'}
             value={`$${totalPayroll.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
-            subtitle="Gross disbursements"
+            subtitle="Disbursed earnings"
             icon={<AccountBalanceWalletOutlinedIcon />}
-            color="#4f46e5"
+            color="#C62828"
             loading={isSalaryLoading}
           />
         </Grid>
@@ -318,10 +329,10 @@ export const SalaryListPage: React.FC = () => {
                 <TableRow>
                   <TableCell>Employee</TableCell>
                   <TableCell>Pay Date</TableCell>
-                  <TableCell>Basic Salary</TableCell>
-                  <TableCell>Bonus</TableCell>
-                  <TableCell>Deductions</TableCell>
-                  <TableCell>Net Salary</TableCell>
+                  <TableCell align="right">Basic Salary</TableCell>
+                  <TableCell align="right">Bonus</TableCell>
+                  <TableCell align="right">Deduction</TableCell>
+                  <TableCell align="right">Net Salary</TableCell>
                   {canManage && <TableCell align="right">Actions</TableCell>}
                 </TableRow>
               </TableHead>
@@ -334,20 +345,24 @@ export const SalaryListPage: React.FC = () => {
                           {sal.employee?.name || `Employee #${sal.employee?.id || '—'}`}
                         </Typography>
                         <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          {sal.employee?.email || ''}
+                          {sal.employee?.email}
                         </Typography>
                       </Box>
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>{sal.payDate}</TableCell>
-                    <TableCell>${sal.basicSalary?.toLocaleString()}</TableCell>
-                    <TableCell sx={{ color: 'success.main', fontWeight: 600 }}>
-                      +${sal.bonus?.toLocaleString()}
+                    <TableCell align="right">
+                      ${(sal.basicSalary || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </TableCell>
-                    <TableCell sx={{ color: 'error.main', fontWeight: 600 }}>
-                      -${sal.deduction?.toLocaleString()}
+                    <TableCell align="right" sx={{ color: 'success.main', fontWeight: 600 }}>
+                      +${(sal.bonus || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: 'primary.main', fontSize: '0.95rem' }}>
-                      ${sal.netSalary?.toLocaleString()}
+                    <TableCell align="right" sx={{ color: 'error.main', fontWeight: 600 }}>
+                      -${(sal.deduction || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                        ${(sal.netSalary || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </Typography>
                     </TableCell>
                     {canManage && (
                       <TableCell align="right">
@@ -381,21 +396,21 @@ export const SalaryListPage: React.FC = () => {
           </TableContainer>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
             component="div"
             count={filteredSalaries.length}
-            rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={(_, newPage) => setPage(newPage)}
+            rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(e) => {
               setRowsPerPage(parseInt(e.target.value, 10));
               setPage(0);
             }}
+            rowsPerPageOptions={[5, 10, 25]}
           />
         </Card>
       )}
 
-      {/* Record / Edit Modal */}
+      {/* Create / Edit Salary Modal */}
       <Dialog
         open={modalOpen}
         onClose={handleCloseModal}
@@ -405,13 +420,13 @@ export const SalaryListPage: React.FC = () => {
       >
         <Box component="form" onSubmit={handleSave}>
           <DialogTitle sx={{ fontWeight: 800 }}>
-            {editingSalary ? 'Edit Salary Slip' : 'Record Salary Slip'}
+            {editingSalary ? 'Edit Salary Record' : 'Record Salary Slip'}
           </DialogTitle>
           <DialogContent dividers>
             {!editingSalary && (
               <Box sx={{ mb: 2.5, mt: 0.5 }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-                  Select Employee *
+                  Target Employee *
                 </Typography>
                 <TextField
                   select
@@ -429,7 +444,7 @@ export const SalaryListPage: React.FC = () => {
               </Box>
             )}
 
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: 2.5 }}>
               <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
                 Basic Salary ($) *
               </Typography>
@@ -437,16 +452,16 @@ export const SalaryListPage: React.FC = () => {
                 fullWidth
                 required
                 type="number"
-                placeholder="e.g. 5000"
+                placeholder="5000"
                 value={formData.basicSalary}
                 onChange={(e) => setFormData({ ...formData, basicSalary: e.target.value })}
               />
             </Box>
 
-            <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid container spacing={2} sx={{ mb: 2.5 }}>
               <Grid size={{ xs: 6 }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-                  Bonus ($)
+                  Bonus / Incentive ($)
                 </Typography>
                 <TextField
                   fullWidth
@@ -455,7 +470,6 @@ export const SalaryListPage: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, bonus: e.target.value })}
                 />
               </Grid>
-
               <Grid size={{ xs: 6 }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
                   Deductions ($)
@@ -469,9 +483,9 @@ export const SalaryListPage: React.FC = () => {
               </Grid>
             </Grid>
 
-            <Box sx={{ mb: 2 }}>
+            <Box>
               <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-                Pay Disbursement Date *
+                Disbursement Pay Date *
               </Typography>
               <TextField
                 fullWidth
@@ -479,29 +493,12 @@ export const SalaryListPage: React.FC = () => {
                 type="date"
                 value={formData.payDate}
                 onChange={(e) => setFormData({ ...formData, payDate: e.target.value })}
+                slotProps={{ inputLabel: { shrink: true } }}
               />
             </Box>
-
-            {/* Live Net Salary Preview */}
-            <Paper
-              sx={{
-                p: 2,
-                borderRadius: 2.5,
-                bgcolor: 'action.hover',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                Calculated Net Salary:
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: 'primary.main' }}>
-                ${computedNetSalary.toLocaleString()}
-              </Typography>
-            </Paper>
           </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2 }}>
+
+          <DialogActions sx={{ p: 2.5 }}>
             <Button onClick={handleCloseModal} color="inherit">
               Cancel
             </Button>
@@ -511,30 +508,27 @@ export const SalaryListPage: React.FC = () => {
               disabled={createMutation.isPending || updateMutation.isPending}
             >
               {createMutation.isPending || updateMutation.isPending ? (
-                <CircularProgress size={20} />
+                <CircularProgress size={24} />
               ) : editingSalary ? (
-                'Save Changes'
+                'Update Salary'
               ) : (
-                'Record Slip'
+                'Disburse Salary'
               )}
             </Button>
           </DialogActions>
         </Box>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* Delete Dialog */}
       <ConfirmDialog
         open={deleteDialogOpen}
-        title="Delete Salary Record"
-        message="Are you sure you want to permanently delete this payroll record?"
-        confirmText="Confirm Delete"
+        title="Remove Salary Slip"
+        message={`Are you sure you want to delete this salary slip record #${salaryToDelete?.id}? This action cannot be undone.`}
+        confirmText="Delete Record"
         confirmColor="error"
         loading={deleteMutation.isPending}
         onConfirm={handleDeleteConfirm}
-        onCancel={() => {
-          setDeleteDialogOpen(false);
-          setSalaryToDelete(null);
-        }}
+        onClose={() => setDeleteDialogOpen(false)}
       />
     </Box>
   );

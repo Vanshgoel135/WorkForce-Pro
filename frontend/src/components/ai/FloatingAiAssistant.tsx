@@ -37,7 +37,7 @@ export const FloatingAiAssistant: React.FC = () => {
     {
       id: 'init',
       sender: 'ai',
-      text: "👋 Hi! I'm your **WorkForce Pro AI Assistant** powered by Spring AI & Gemini.\n\nAsk me anything about HR policies, payroll calculations, leave tracking, or employee workflows!",
+      text: "👋 Hello! I am your **WorkForce Pro AI Assistant** powered by Spring AI & enterprise intelligence.\n\nAsk me anything about company HR policies, payroll calculations, leave quotas, or attendance records!",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -74,7 +74,7 @@ export const FloatingAiAssistant: React.FC = () => {
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: reply || 'I received an empty response. Please try rephrasing your question.',
+        text: reply || 'I received an empty response. Please rephrase your question.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, aiMessage]);
@@ -82,7 +82,7 @@ export const FloatingAiAssistant: React.FC = () => {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: `⚠️ **Error communicating with AI Service**: ${err.message || 'Please check backend Gemini API configuration.'}`,
+        text: `⚠️ **AI Service Notification**: ${err.message || 'Error communicating with backend AI endpoint.'}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -102,14 +102,14 @@ export const FloatingAiAssistant: React.FC = () => {
       {
         id: 'init-cleared',
         sender: 'ai',
-        text: 'Chat history cleared. How can I assist you today?',
+        text: 'Chat history cleared. How can I assist you with your workforce operations today?',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       },
     ]);
   };
 
   const quickPrompts = [
-    'How do I calculate net salary in WorkForce Pro?',
+    'How is net salary computed in WorkForce Pro?',
     'What are the mandatory parameters for leave approval?',
     'Draft an employee welcome announcement email',
   ];
@@ -133,13 +133,13 @@ export const FloatingAiAssistant: React.FC = () => {
                 width: 58,
                 height: 58,
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+                background: 'linear-gradient(135deg, #C62828 0%, #E53935 100%)',
                 color: '#ffffff',
-                boxShadow: '0 8px 25px rgba(79, 70, 229, 0.45)',
+                boxShadow: '0 8px 25px rgba(198, 40, 40, 0.45)',
                 transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 '&:hover': {
                   transform: 'scale(1.08) translateY(-2px)',
-                  boxShadow: '0 12px 30px rgba(79, 70, 229, 0.6)',
+                  boxShadow: '0 12px 30px rgba(198, 40, 40, 0.6)',
                 },
               }}
             >
@@ -164,18 +164,16 @@ export const FloatingAiAssistant: React.FC = () => {
             flexDirection: 'column',
             overflow: 'hidden',
             zIndex: 1300,
-            border: (theme) =>
-              theme.palette.mode === 'light'
-                ? '1px solid #e2e8f0'
-                : '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.25)',
+            bgcolor: '#FFFFFF',
+            border: '1px solid #E5E7EB',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.2)',
           }}
         >
           {/* Assistant Header */}
           <Box
             sx={{
               p: 2,
-              background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+              background: 'linear-gradient(135deg, #B71C1C 0%, #C62828 100%)',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
@@ -197,8 +195,8 @@ export const FloatingAiAssistant: React.FC = () => {
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
                   WorkForce AI
                 </Typography>
-                <Typography variant="caption" sx={{ opacity: 0.85, fontSize: '0.7rem' }}>
-                  Spring AI + Gemini Intelligence
+                <Typography variant="caption" sx={{ opacity: 0.9, fontSize: '0.7rem' }}>
+                  Spring AI + Gemini Enterprise
                 </Typography>
               </Box>
             </Box>
@@ -219,9 +217,9 @@ export const FloatingAiAssistant: React.FC = () => {
 
           {/* Quick suggestions if chat only has welcome message */}
           {messages.length <= 1 && (
-            <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderBottom: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'block', mb: 0.75 }}>
-                Try asking:
+            <Box sx={{ p: 1.5, bgcolor: '#FAFAFA', borderBottom: '1px solid #E5E7EB' }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: '#6B7280', display: 'block', mb: 0.75 }}>
+                Suggested inquiries:
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                 {quickPrompts.map((prompt, idx) => (
@@ -232,10 +230,12 @@ export const FloatingAiAssistant: React.FC = () => {
                     onClick={() => handleSend(prompt)}
                     sx={{
                       fontSize: '0.72rem',
+                      fontWeight: 600,
                       justifyContent: 'flex-start',
                       cursor: 'pointer',
-                      bgcolor: 'background.paper',
-                      '&:hover': { bgcolor: 'primary.light', color: '#ffffff' },
+                      bgcolor: '#FFFFFF',
+                      border: '1px solid #E5E7EB',
+                      '&:hover': { bgcolor: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' },
                     }}
                   />
                 ))}
@@ -252,7 +252,7 @@ export const FloatingAiAssistant: React.FC = () => {
               display: 'flex',
               flexDirection: 'column',
               gap: 2,
-              bgcolor: 'background.default',
+              bgcolor: '#F9FAFB',
             }}
           >
             {messages.map((msg) => {
@@ -273,20 +273,20 @@ export const FloatingAiAssistant: React.FC = () => {
                       borderRadius: 3,
                       borderTopLeftRadius: isAi ? 0 : 12,
                       borderTopRightRadius: isAi ? 12 : 0,
-                      bgcolor: isAi ? 'background.paper' : 'primary.main',
-                      color: isAi ? 'text.primary' : '#ffffff',
-                      border: isAi ? '1px solid' : 'none',
-                      borderColor: 'divider',
-                      boxShadow: isAi ? '0 2px 8px rgba(0,0,0,0.04)' : '0 4px 12px rgba(79, 70, 229, 0.25)',
+                      bgcolor: isAi ? '#FFFFFF' : '#C62828',
+                      color: isAi ? '#1F2937' : '#FFFFFF',
+                      border: isAi ? '1px solid #E5E7EB' : 'none',
+                      boxShadow: isAi ? '0 2px 6px rgba(0,0,0,0.03)' : '0 4px 12px rgba(198, 40, 40, 0.25)',
                       fontSize: '0.85rem',
                       lineHeight: 1.5,
                       position: 'relative',
                       '& pre': {
-                        bgcolor: 'action.hover',
+                        bgcolor: '#F3F4F6',
                         p: 1,
                         borderRadius: 1.5,
                         overflowX: 'auto',
                         fontSize: '0.78rem',
+                        color: '#111827',
                       },
                       '& p': { m: 0, mb: 1, '&:last-child': { mb: 0 } },
                       '& ul, & ol': { pl: 2, m: 0 },
@@ -296,7 +296,7 @@ export const FloatingAiAssistant: React.FC = () => {
                   </Box>
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, px: 0.5 }}>
-                    <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.68rem' }}>
+                    <Typography variant="caption" sx={{ color: '#9CA3AF', fontSize: '0.68rem' }}>
                       {msg.timestamp}
                     </Typography>
                     {isAi && (
@@ -304,10 +304,10 @@ export const FloatingAiAssistant: React.FC = () => {
                         <IconButton
                           size="small"
                           onClick={() => handleCopy(msg.id, msg.text)}
-                          sx={{ p: 0.25, color: 'text.secondary', fontSize: '0.75rem' }}
+                          sx={{ p: 0.25, color: '#9CA3AF', fontSize: '0.75rem', '&:hover': { color: '#C62828' } }}
                         >
                           {copiedId === msg.id ? (
-                            <CheckIcon sx={{ fontSize: 13, color: 'success.main' }} />
+                            <CheckIcon sx={{ fontSize: 13, color: '#10B981' }} />
                           ) : (
                             <ContentCopyIcon sx={{ fontSize: 13 }} />
                           )}
@@ -321,8 +321,8 @@ export const FloatingAiAssistant: React.FC = () => {
 
             {loading && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5 }}>
-                <CircularProgress size={18} thickness={5} sx={{ color: 'primary.main' }} />
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+                <CircularProgress size={18} thickness={5} sx={{ color: '#C62828' }} />
+                <Typography variant="caption" sx={{ color: '#6B7280', fontStyle: 'italic' }}>
                   WorkForce AI is analyzing and generating response...
                 </Typography>
               </Box>
@@ -339,9 +339,8 @@ export const FloatingAiAssistant: React.FC = () => {
             }}
             sx={{
               p: 1.5,
-              borderTop: '1px solid',
-              borderColor: 'divider',
-              bgcolor: 'background.paper',
+              borderTop: '1px solid #E5E7EB',
+              bgcolor: '#FFFFFF',
               display: 'flex',
               alignItems: 'center',
               gap: 1,
@@ -358,7 +357,8 @@ export const FloatingAiAssistant: React.FC = () => {
                 px: 1.5,
                 py: 0.75,
                 borderRadius: 2.5,
-                bgcolor: 'action.hover',
+                bgcolor: '#F9FAFB',
+                border: '1px solid #E5E7EB',
               }}
             />
             <Button
@@ -371,6 +371,8 @@ export const FloatingAiAssistant: React.FC = () => {
                 height: 42,
                 p: 0,
                 borderRadius: 2.5,
+                bgcolor: '#C62828',
+                '&:hover': { bgcolor: '#B71C1C' },
               }}
             >
               <SendIcon fontSize="small" />

@@ -32,6 +32,8 @@ import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
 import BusinessIcon from '@mui/icons-material/Business';
+import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
+
 import { useAuth } from '../../context/AuthContext';
 import { useAppTheme } from '../../theme/ThemeContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -71,14 +73,9 @@ export const Header: React.FC<HeaderProps> = ({
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: (theme) =>
-          theme.palette.mode === 'light'
-            ? 'rgba(255, 255, 255, 0.85)'
-            : 'rgba(17, 24, 39, 0.85)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-        color: 'text.primary',
+        bgcolor: '#FFFFFF',
+        borderBottom: '1px solid #E5E7EB',
+        color: '#1F2937',
         zIndex: (theme) => theme.zIndex.drawer - 1,
       }}
     >
@@ -106,27 +103,23 @@ export const Header: React.FC<HeaderProps> = ({
               py: 0.75,
               borderRadius: 3,
               cursor: 'pointer',
-              bgcolor: (theme: any) =>
-                theme.palette.mode === 'light' ? '#f1f5f9' : 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid',
-              borderColor: (theme: any) =>
-                theme.palette.mode === 'light' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)',
+              bgcolor: '#F9FAFB',
+              border: '1px solid #E5E7EB',
               transition: 'all 0.2s ease',
               width: { xs: 160, sm: 260, md: 320 },
               '&:hover': {
-                borderColor: 'primary.main',
-                bgcolor: (theme: any) =>
-                  theme.palette.mode === 'light' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.08)',
+                borderColor: '#C62828',
+                bgcolor: '#FFFFFF',
               },
             }}
           >
-            <SearchIcon sx={{ color: 'text.secondary', fontSize: '1.1rem' }} />
+            <SearchIcon sx={{ color: '#9CA3AF', fontSize: '1.1rem' }} />
             <Typography
               variant="body2"
               noWrap
-              sx={{ color: 'text.secondary', fontSize: '0.825rem', flex: 1 }}
+              sx={{ color: '#6B7280', fontSize: '0.825rem', flex: 1 }}
             >
-              Search or press...
+              Search workforce, employees...
             </Typography>
             <Chip
               label="Ctrl+K"
@@ -136,7 +129,8 @@ export const Header: React.FC<HeaderProps> = ({
                 fontSize: '0.68rem',
                 fontWeight: 700,
                 display: { xs: 'none', sm: 'inline-flex' },
-                bgcolor: 'action.hover',
+                bgcolor: '#E5E7EB',
+                color: '#4B5563',
               }}
             />
           </Box>
@@ -147,14 +141,17 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Org Badge */}
           {user?.organizationId && (
             <Chip
-              icon={<BusinessIcon sx={{ fontSize: '0.9rem !important' }} />}
-              label={`Org #${user.organizationId}`}
+              icon={<BusinessIcon sx={{ fontSize: '0.9rem !important', color: '#C62828 !important' }} />}
+              label={`WorkForce Pro Corporate`}
               size="small"
               variant="outlined"
               sx={{
                 display: { xs: 'none', md: 'inline-flex' },
-                fontWeight: 600,
+                fontWeight: 700,
                 fontSize: '0.75rem',
+                borderColor: '#FECACA',
+                bgcolor: '#FEF2F2',
+                color: '#991B1B',
               }}
             />
           )}
@@ -164,16 +161,10 @@ export const Header: React.FC<HeaderProps> = ({
             <IconButton
               onClick={() => navigate('/ai-assistant')}
               sx={{
-                color: 'primary.main',
-                bgcolor: (theme) =>
-                  theme.palette.mode === 'light'
-                    ? 'rgba(79, 70, 229, 0.08)'
-                    : 'rgba(99, 102, 241, 0.15)',
+                color: '#C62828',
+                bgcolor: '#FEF2F2',
                 '&:hover': {
-                  bgcolor: (theme) =>
-                    theme.palette.mode === 'light'
-                      ? 'rgba(79, 70, 229, 0.15)'
-                      : 'rgba(99, 102, 241, 0.25)',
+                  bgcolor: '#FEE2E2',
                 },
               }}
             >
@@ -191,7 +182,17 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Notifications Button */}
           <Tooltip title="Notifications">
             <IconButton onClick={handleOpenNotif} color="inherit">
-              <Badge badgeContent={unreadCount} color="error" max={99}>
+              <Badge
+                badgeContent={unreadCount}
+                sx={{
+                  '& .MuiBadge-badge': {
+                    bgcolor: '#C62828',
+                    color: '#FFFFFF',
+                    fontWeight: 700,
+                  },
+                }}
+                max={99}
+              >
                 <NotificationsNoneOutlinedIcon fontSize="small" />
               </Badge>
             </IconButton>
@@ -211,17 +212,18 @@ export const Header: React.FC<HeaderProps> = ({
                   maxHeight: 460,
                   borderRadius: 3,
                   mt: 1.5,
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+                  border: '1px solid #E5E7EB',
                 },
               },
             }}
           >
             <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#111827' }}>
                 Notifications ({unreadCount} new)
               </Typography>
               {unreadCount > 0 && (
-                <Button size="small" onClick={markAllAsRead} sx={{ fontSize: '0.75rem', p: 0.5 }}>
+                <Button size="small" onClick={markAllAsRead} sx={{ fontSize: '0.75rem', p: 0.5, color: '#C62828', fontWeight: 700 }}>
                   Mark all read
                 </Button>
               )}
@@ -230,7 +232,7 @@ export const Header: React.FC<HeaderProps> = ({
             <List disablePadding sx={{ maxHeight: 300, overflowY: 'auto' }}>
               {notifications.length === 0 ? (
                 <Box sx={{ p: 3, textAlign: 'center' }}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  <Typography variant="body2" sx={{ color: '#6B7280' }}>
                     No notifications yet.
                   </Typography>
                 </Box>
@@ -247,29 +249,28 @@ export const Header: React.FC<HeaderProps> = ({
                     }}
                     sx={{
                       cursor: 'pointer',
-                      bgcolor: notif.read ? 'transparent' : 'action.hover',
-                      '&:hover': { bgcolor: 'action.selected' },
-                      borderBottom: '1px solid',
-                      borderColor: 'divider',
+                      bgcolor: notif.read ? 'transparent' : '#FEF2F2',
+                      '&:hover': { bgcolor: '#FEE2E2' },
+                      borderBottom: '1px solid #F3F4F6',
                       py: 1.2,
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: 36, color: notif.type === 'success' ? 'success.main' : 'info.main' }}>
+                    <ListItemIcon sx={{ minWidth: 36, color: notif.type === 'success' ? '#10B981' : '#C62828' }}>
                       {notif.type === 'success' ? <CheckCircleOutlineIcon fontSize="small" /> : <InfoOutlinedIcon fontSize="small" />}
                     </ListItemIcon>
                     <ListItemText
                       primary={notif.title}
                       secondary={
                         <>
-                          <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+                          <Typography variant="caption" sx={{ display: 'block', color: '#4B5563' }}>
                             {notif.message}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.68rem' }}>
+                          <Typography variant="caption" sx={{ color: '#9CA3AF', fontSize: '0.68rem' }}>
                             {notif.timestamp}
                           </Typography>
                         </>
                       }
-                      slotProps={{ primary: { sx: { fontSize: '0.84rem', fontWeight: notif.read ? 500 : 700 } } }}
+                      slotProps={{ primary: { sx: { fontSize: '0.84rem', fontWeight: notif.read ? 600 : 800, color: '#111827' } } }}
                     />
                   </ListItem>
                 ))
@@ -284,7 +285,7 @@ export const Header: React.FC<HeaderProps> = ({
                   navigate('/notifications');
                   handleCloseNotif();
                 }}
-                sx={{ fontSize: '0.8rem' }}
+                sx={{ fontSize: '0.8rem', color: '#C62828', fontWeight: 700 }}
               >
                 View All Notifications
               </Button>
@@ -297,10 +298,11 @@ export const Header: React.FC<HeaderProps> = ({
               sx={{
                 width: 36,
                 height: 36,
-                bgcolor: 'primary.main',
+                bgcolor: '#C62828',
+                color: '#FFFFFF',
                 fontSize: '0.875rem',
                 fontWeight: 700,
-                boxShadow: '0 2px 8px rgba(79, 70, 229, 0.3)',
+                boxShadow: '0 2px 8px rgba(198, 40, 40, 0.3)',
               }}
             >
               {user?.email?.charAt(0).toUpperCase() || 'U'}
@@ -317,16 +319,18 @@ export const Header: React.FC<HeaderProps> = ({
             slotProps={{
               paper: {
                 sx: {
-                  width: 220,
+                  width: 230,
                   borderRadius: 3,
                   mt: 1.5,
                   p: 0.5,
+                  border: '1px solid #E5E7EB',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.08)',
                 },
               },
             }}
           >
             <Box sx={{ px: 2, py: 1.5 }}>
-              <Typography variant="subtitle2" noWrap sx={{ fontWeight: 700 }}>
+              <Typography variant="subtitle2" noWrap sx={{ fontWeight: 800, color: '#111827' }}>
                 {user?.email}
               </Typography>
               <Box sx={{ mt: 0.5 }}>
@@ -334,6 +338,17 @@ export const Header: React.FC<HeaderProps> = ({
               </Box>
             </Box>
             <Divider sx={{ my: 0.5 }} />
+            <MenuItem
+              onClick={() => {
+                navigate('/');
+                handleCloseUserMenu();
+              }}
+            >
+              <ListItemIcon>
+                <LanguageOutlinedIcon fontSize="small" sx={{ color: '#C62828' }} />
+              </ListItemIcon>
+              <ListItemText primary="Public Website" />
+            </MenuItem>
             <MenuItem
               onClick={() => {
                 navigate('/profile');
@@ -362,9 +377,9 @@ export const Header: React.FC<HeaderProps> = ({
                 handleCloseUserMenu();
                 logout();
               }}
-              sx={{ color: 'error.main' }}
+              sx={{ color: '#DC2626' }}
             >
-              <ListItemIcon sx={{ color: 'error.main' }}>
+              <ListItemIcon sx={{ color: '#DC2626' }}>
                 <LogoutOutlinedIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Log Out" />

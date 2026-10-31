@@ -9,9 +9,9 @@ import {
   ListItemText,
   Typography,
   Avatar,
-  Divider,
   IconButton,
   Tooltip,
+  Divider,
 } from '@mui/material';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutlined';
@@ -27,6 +27,9 @@ import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import HubOutlinedIcon from '@mui/icons-material/HubOutlined';
+import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
+
+import Logo from '../common/Logo';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../common/StatusBadge';
 
@@ -42,45 +45,69 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const navGroups = [
-    {
-      title: 'OVERVIEW',
-      items: [
-        { label: 'Dashboard', icon: <DashboardOutlinedIcon />, path: '/dashboard' },
-      ],
-    },
-    {
-      title: 'WORKFORCE',
-      items: [
-        { label: 'Employees', icon: <PeopleOutlineIcon />, path: '/employees' },
-        { label: 'Departments', icon: <BusinessOutlinedIcon />, path: '/departments' },
-        { label: 'Attendance', icon: <AccessTimeOutlinedIcon />, path: '/attendance' },
-        { label: 'Leave Requests', icon: <EventBusyOutlinedIcon />, path: '/leaves' },
-      ],
-    },
-    {
-      title: 'PAYROLL & ORG',
-      items: [
-        { label: 'Salary & Payroll', icon: <PaymentsOutlinedIcon />, path: '/salary' },
-        { label: 'Organization', icon: <CorporateFareOutlinedIcon />, path: '/organization' },
-      ],
-    },
-    {
-      title: 'ACCESS & ROLES',
-      items: [
-        { label: 'Users & Access', icon: <SecurityOutlinedIcon />, path: '/users' },
-        { label: 'Permissions Matrix', icon: <HubOutlinedIcon />, path: '/permissions' },
-      ],
-    },
-    {
-      title: 'INTELLIGENCE & SYSTEM',
-      items: [
-        { label: 'AI Assistant', icon: <SmartToyOutlinedIcon />, path: '/ai-assistant', highlight: true },
-        { label: 'Notifications', icon: <NotificationsNoneOutlinedIcon />, path: '/notifications' },
-        { label: 'Settings', icon: <SettingsOutlinedIcon />, path: '/settings' },
-      ],
-    },
-  ];
+  const isAdminOrHr = user?.role === 'ADMIN' || user?.role === 'HR';
+
+  const navGroups = isAdminOrHr
+    ? [
+        {
+          title: 'OVERVIEW',
+          items: [
+            { label: 'Dashboard', icon: <DashboardOutlinedIcon />, path: '/dashboard' },
+          ],
+        },
+        {
+          title: 'WORKFORCE',
+          items: [
+            { label: 'Employees', icon: <PeopleOutlineIcon />, path: '/employees' },
+            { label: 'Departments', icon: <BusinessOutlinedIcon />, path: '/departments' },
+            { label: 'Attendance', icon: <AccessTimeOutlinedIcon />, path: '/attendance' },
+            { label: 'Leave Requests', icon: <EventBusyOutlinedIcon />, path: '/leaves' },
+          ],
+        },
+        {
+          title: 'PAYROLL & ORG',
+          items: [
+            { label: 'Salary & Payroll', icon: <PaymentsOutlinedIcon />, path: '/salary' },
+            { label: 'Organization', icon: <CorporateFareOutlinedIcon />, path: '/organization' },
+          ],
+        },
+        {
+          title: 'ACCESS & ROLES',
+          items: [
+            { label: 'Users & Access', icon: <SecurityOutlinedIcon />, path: '/users' },
+            { label: 'Permissions Matrix', icon: <HubOutlinedIcon />, path: '/permissions' },
+          ],
+        },
+        {
+          title: 'INTELLIGENCE & SYSTEM',
+          items: [
+            { label: 'AI Assistant', icon: <SmartToyOutlinedIcon />, path: '/ai-assistant', highlight: true },
+            { label: 'Notifications', icon: <NotificationsNoneOutlinedIcon />, path: '/notifications' },
+            { label: 'Settings', icon: <SettingsOutlinedIcon />, path: '/settings' },
+          ],
+        },
+      ]
+    : [
+        {
+          title: 'MY WORKSPACE',
+          items: [
+            { label: 'Overview', icon: <DashboardOutlinedIcon />, path: '/dashboard' },
+            { label: 'My Attendance', icon: <AccessTimeOutlinedIcon />, path: '/attendance' },
+            { label: 'My Leave Requests', icon: <EventBusyOutlinedIcon />, path: '/leaves' },
+            { label: 'My Pay Slips', icon: <PaymentsOutlinedIcon />, path: '/salary' },
+            { label: 'Departments', icon: <BusinessOutlinedIcon />, path: '/departments' },
+            { label: 'My Profile', icon: <PeopleOutlineIcon />, path: '/profile' },
+          ],
+        },
+        {
+          title: 'INTELLIGENCE & SYSTEM',
+          items: [
+            { label: 'AI Assistant', icon: <SmartToyOutlinedIcon />, path: '/ai-assistant', highlight: true },
+            { label: 'Notifications', icon: <NotificationsNoneOutlinedIcon />, path: '/notifications' },
+            { label: 'Settings', icon: <SettingsOutlinedIcon />, path: '/settings' },
+          ],
+        },
+      ];
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -93,9 +120,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: 'background.paper',
-        borderRight: '1px solid',
-        borderColor: 'divider',
+        bgcolor: '#FFFFFF',
+        borderRight: '1px solid #E5E7EB',
       }}
     >
       {/* Brand Header */}
@@ -105,43 +131,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          borderBottom: '1px solid #E5E7EB',
         }}
       >
-        <Box
-          sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }}
-          onClick={() => handleNavigate('/dashboard')}
-        >
-          <Box
-            sx={{
-              width: 38,
-              height: 38,
-              borderRadius: 2.5,
-              background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.35)',
-            }}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.2rem', lineHeight: 1 }}>
-              W
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              WorkForce
-              <Box component="span" sx={{ color: 'primary.main', ml: 0.5 }}>
-                Pro
-              </Box>
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.68rem', fontWeight: 600 }}>
-              ENTERPRISE SAAS
-            </Typography>
-          </Box>
-        </Box>
+        <Logo size="medium" onClick={() => handleNavigate('/dashboard')} />
 
         {mobileOpen && (
           <IconButton onClick={onClose} size="small">
@@ -160,10 +153,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
                 px: 1.5,
                 mb: 1,
                 display: 'block',
-                fontWeight: 700,
+                fontWeight: 800,
                 fontSize: '0.68rem',
                 letterSpacing: '0.08em',
-                color: 'text.secondary',
+                color: '#9CA3AF',
               }}
             >
               {group.title}
@@ -180,19 +173,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
                       mb: 0.5,
                       py: 1,
                       px: 1.5,
+                      position: 'relative',
                       transition: 'all 0.15s ease',
-                      bgcolor: isActive
-                        ? (theme) =>
-                            theme.palette.mode === 'light'
-                              ? 'rgba(79, 70, 229, 0.1)'
-                              : 'rgba(99, 102, 241, 0.2)'
-                        : 'transparent',
-                      color: isActive ? 'primary.main' : 'text.primary',
+                      bgcolor: isActive ? '#FEF2F2' : 'transparent',
+                      color: isActive ? '#C62828' : '#374151',
+                      borderLeft: isActive ? '3px solid #C62828' : '3px solid transparent',
                       '&:hover': {
-                        bgcolor: (theme) =>
-                          theme.palette.mode === 'light'
-                            ? 'rgba(79, 70, 229, 0.05)'
-                            : 'rgba(99, 102, 241, 0.1)',
+                        bgcolor: isActive ? '#FEF2F2' : '#F9FAFB',
+                        color: '#C62828',
+                        '& .MuiListItemIcon-root': {
+                          color: '#C62828',
+                        },
                       },
                     }}
                   >
@@ -200,10 +191,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
                       sx={{
                         minWidth: 36,
                         color: isActive
-                          ? 'primary.main'
+                          ? '#C62828'
                           : item.highlight
-                          ? '#818cf8'
-                          : 'text.secondary',
+                          ? '#E53935'
+                          : '#6B7280',
+                        transition: 'color 0.15s',
                       }}
                     >
                       {item.icon}
@@ -225,8 +217,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
                           width: 8,
                           height: 8,
                           borderRadius: '50%',
-                          bgcolor: '#818cf8',
-                          boxShadow: '0 0 8px #818cf8',
+                          bgcolor: '#C62828',
+                          boxShadow: '0 0 8px #C62828',
                         }}
                       />
                     )}
@@ -236,15 +228,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
             </List>
           </Box>
         ))}
+
+        <Divider sx={{ my: 2, borderColor: '#E5E7EB' }} />
+
+        {/* Corporate Website Quick Switch */}
+        <ListItemButton
+          onClick={() => navigate('/')}
+          sx={{
+            borderRadius: 2.5,
+            py: 1,
+            px: 1.5,
+            color: '#4B5563',
+            '&:hover': { bgcolor: '#F9FAFB', color: '#C62828' },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 36, color: '#6B7280' }}>
+            <LanguageOutlinedIcon />
+          </ListItemIcon>
+          <ListItemText
+            primary="Corporate Website"
+            slotProps={{
+              primary: {
+                sx: { fontSize: '0.84rem', fontWeight: 600 },
+              },
+            }}
+          />
+        </ListItemButton>
       </Box>
 
       {/* User Session Bottom Card */}
       <Box
         sx={{
           p: 2,
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          bgcolor: 'action.hover',
+          borderTop: '1px solid #E5E7EB',
+          bgcolor: '#FAFAFA',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -256,7 +273,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
               sx={{
                 width: 36,
                 height: 36,
-                bgcolor: 'primary.main',
+                bgcolor: '#C62828',
+                color: '#FFFFFF',
                 fontSize: '0.875rem',
                 fontWeight: 700,
               }}
@@ -267,7 +285,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
               <Typography
                 variant="body2"
                 noWrap
-                sx={{ fontWeight: 700, fontSize: '0.82rem', maxWidth: 130 }}
+                sx={{ fontWeight: 700, fontSize: '0.82rem', maxWidth: 130, color: '#111827' }}
               >
                 {user?.email || 'User'}
               </Typography>
@@ -278,7 +296,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
           </Box>
 
           <Tooltip title="Log Out">
-            <IconButton onClick={logout} size="small" sx={{ color: 'text.secondary' }}>
+            <IconButton onClick={logout} size="small" sx={{ color: '#6B7280', '&:hover': { color: '#C62828' } }}>
               <LogoutOutlinedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -311,8 +329,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onClose }) => {
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: DRAWER_WIDTH,
-            borderRight: '1px solid',
-            borderColor: 'divider',
+            borderRight: '1px solid #E5E7EB',
           },
         }}
         open

@@ -13,7 +13,7 @@ export const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
   if (type === 'cards') {
     return (
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 3 }}>
-        {Array.from(new Array(rows)).map((_, i) => (
+        {Array.from({ length: rows }).map((_, i) => (
           <Card key={i} sx={{ borderRadius: 4, p: 2 }}>
             <CardContent>
               <Skeleton variant="circular" width={48} height={48} sx={{ mb: 2 }} />
@@ -38,7 +38,7 @@ export const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
           </Box>
         </Box>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-          {Array.from(new Array(6)).map((_, i) => (
+          {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} variant="rectangular" height={54} sx={{ borderRadius: 2 }} />
           ))}
         </Box>
@@ -53,7 +53,7 @@ export const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
         <Skeleton variant="text" width="200px" height={30} />
       </Box>
       <Box sx={{ p: 2 }}>
-        {Array.from(new Array(rows)).map((_, i) => (
+        {Array.from({ length: rows }).map((_, i) => (
           <Box
             key={i}
             sx={{

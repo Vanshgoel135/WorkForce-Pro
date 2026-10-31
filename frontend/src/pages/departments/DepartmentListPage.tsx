@@ -10,7 +10,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Typography,
   Button,
   TextField,
@@ -68,9 +67,12 @@ export const DepartmentListPage: React.FC = () => {
     queryFn: () => departmentService.getAll(),
   });
 
+  const isAdminOrHr = user?.role === 'ADMIN' || user?.role === 'HR';
+
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
     queryFn: () => employeeService.getAll(),
+    enabled: isAdminOrHr,
   });
 
   // Compute employee count per department
